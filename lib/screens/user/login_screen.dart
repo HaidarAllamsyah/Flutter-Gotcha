@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text('Matchacih',
+                          const Text('Gotcha',
                               style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.w800,

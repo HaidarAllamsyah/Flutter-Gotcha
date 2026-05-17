@@ -16,6 +16,8 @@ dependencies:
   intl: ^0.19.0
   image_picker: ^1.0.5
   shared_preferences: ^2.2.2
+  cached_network_image: ^3.3.1 
+  smooth_page_indicator: ^1.1.0
   
 
 dev_dependencies:

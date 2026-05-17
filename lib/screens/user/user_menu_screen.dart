@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../providers/menu_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/menu_model.dart';
-import '../user/login_screen.dart';
 
 class UserMenuScreen extends StatefulWidget {
   final VoidCallback? onGoToCart;
@@ -21,6 +23,35 @@ class _UserMenuScreenState extends State<UserMenuScreen>
   final _searchController = TextEditingController();
   late AnimationController _animController;
 
+  // Banner
+  final PageController _bannerController = PageController();
+  int _currentBanner = 0;
+  Timer? _bannerTimer;
+
+  final List<Map<String, dynamic>> _banners = [
+    {
+      'title': 'Selamat Datang di Matchacih! 🍵',
+      'subtitle': 'Nikmati matcha premium dengan harga terjangkau',
+      'color1': const Color(0xFF1B4332),
+      'color2': const Color(0xFF2D6A4F),
+      'emoji': '🍵',
+    },
+    {
+      'title': 'New! Matcha Cloud ☁️',
+      'subtitle': 'Es krim vanilla + matcha = surga di mulut',
+      'color1': const Color(0xFF2D6A4F),
+      'color2': const Color(0xFF52B788),
+      'emoji': '☁️',
+    },
+    {
+      'title': 'Kustomisasi Matchamu ✨',
+      'subtitle': 'Pilih grade, kadar, gula, dan es sesuai selera',
+      'color1': const Color(0xFF52B788),
+      'color2': const Color(0xFF95D5B2),
+      'emoji': '✨',
+    },
+  ];
+
   final List<Map<String, String>> _categories = [
     {'value': 'all', 'label': '✨ Semua'},
     {'value': 'drink', 'label': '🍵 Minuman'},
@@ -36,12 +67,25 @@ class _UserMenuScreenState extends State<UserMenuScreen>
       duration: const Duration(milliseconds: 400),
     );
     _animController.forward();
+
+    _bannerTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (_bannerController.hasClients) {
+        final next = (_currentBanner + 1) % _banners.length;
+        _bannerController.animateToPage(
+          next,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     _animController.dispose();
+    _bannerTimer?.cancel();
+    _bannerController.dispose();
     super.dispose();
   }
 
@@ -67,8 +111,8 @@ class _UserMenuScreenState extends State<UserMenuScreen>
   String _menuEmoji(String category) {
     switch (category) {
       case 'drink': return '🍵';
-      case 'food': return '🍰';
-      case 'snack': return '🍪';
+      case 'food': return '🍱';
+      case 'snack': return '🍰';
       default: return '✨';
     }
   }
@@ -82,6 +126,51 @@ class _UserMenuScreenState extends State<UserMenuScreen>
     }
   }
 
+  Widget _buildMenuImage(MenuModel menu, {BorderRadius? borderRadius}) {
+    Widget imageWidget;
+
+    if (menu.imageBase64.isNotEmpty) {
+      imageWidget = Image.memory(
+        Uri.parse(menu.imageBase64).data!.contentAsBytes(),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    } else if (menu.imageUrl.isNotEmpty) {
+      imageWidget = CachedNetworkImage(
+        imageUrl: menu.imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        placeholder: (_, __) => _imagePlaceholder(menu.category),
+        errorWidget: (_, __, ___) => _imagePlaceholder(menu.category),
+      );
+    } else {
+      imageWidget = _imagePlaceholder(menu.category);
+    }
+
+    if (borderRadius != null) {
+      return ClipRRect(borderRadius: borderRadius, child: imageWidget);
+    }
+    return imageWidget;
+  }
+
+  Widget _imagePlaceholder(String category) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFD8F3DC), Color(0xFF95D5B2)],
+        ),
+      ),
+      child: Center(
+        child: Text(_menuEmoji(category),
+            style: const TextStyle(fontSize: 48)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final menuProvider = context.watch<MenuProvider>();
@@ -93,6 +182,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
       backgroundColor: const Color(0xFFF8F9F4),
       body: CustomScrollView(
         slivers: [
+          // AppBar
           SliverAppBar(
             expandedHeight: 130,
             floating: false,
@@ -179,11 +269,14 @@ class _UserMenuScreenState extends State<UserMenuScreen>
               ),
             ),
           ),
+
+          // Search + Banner + Filter
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Column(
                 children: [
+                  // Search bar
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -219,7 +312,104 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
+
+                  // Banner Carousel
+                  SizedBox(
+                    height: 130,
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        PageView.builder(
+                          controller: _bannerController,
+                          onPageChanged: (i) =>
+                              setState(() => _currentBanner = i),
+                          itemCount: _banners.length,
+                          itemBuilder: (_, i) {
+                            final banner = _banners[i];
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    banner['color1'] as Color,
+                                    banner['color2'] as Color,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Stack(
+                                children: [
+                                  // Emoji bg besar
+                                  Positioned(
+                                    right: 16,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: Center(
+                                      child: Text(
+                                        banner['emoji'] as String,
+                                        style: TextStyle(
+                                            fontSize: 64,
+                                            color: Colors.white
+                                                .withOpacity(0.18)),
+                                      ),
+                                    ),
+                                  ),
+                                  // Teks
+                                  Padding(
+                                    padding: const EdgeInsets.all(18),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          banner['title'] as String,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w800,
+                                              height: 1.3),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          banner['subtitle'] as String,
+                                          style: TextStyle(
+                                              color: Colors.white
+                                                  .withOpacity(0.85),
+                                              fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        // Page indicator
+                        Positioned(
+                          bottom: 10,
+                          child: SmoothPageIndicator(
+                            controller: _bannerController,
+                            count: _banners.length,
+                            effect: const WormEffect(
+                              dotWidth: 6,
+                              dotHeight: 6,
+                              spacing: 4,
+                              dotColor: Colors.white38,
+                              activeDotColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Filter chips
                   SizedBox(
                     height: 38,
                     child: ListView.builder(
@@ -276,6 +466,8 @@ class _UserMenuScreenState extends State<UserMenuScreen>
               ),
             ),
           ),
+
+          // Grid menu
           menuProvider.isLoading
               ? const SliverFillRemaining(
                   child: Center(
@@ -313,8 +505,8 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                                 child: child,
                               ),
                             ),
-                            child:
-                                _menuCard(context, menus[i], cartProvider),
+                            child: _menuCard(
+                                context, menus[i], cartProvider),
                           ),
                           childCount: menus.length,
                         ),
@@ -354,51 +546,33 @@ class _UserMenuScreenState extends State<UserMenuScreen>
             Expanded(
               child: Stack(
                 children: [
+                  // Gambar dengan AspectRatio 1:1
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(18)),
-                    child: menu.imageBase64.isEmpty
-                        ? Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFFD8F3DC),
-                                  Color(0xFFB7E4C7)
-                                ],
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(_menuEmoji(menu.category),
-                                  style: const TextStyle(fontSize: 44)),
-                            ),
-                          )
-                        : Image.memory(
-                            Uri.parse(menu.imageBase64)
-                                .data!
-                                .contentAsBytes(),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
+                    child: SizedBox.expand(
+                      child: _buildMenuImage(menu),
+                    ),
                   ),
+                  // Overlay stok habis
                   if (!menu.isAvailable)
                     Positioned.fill(
                       child: ClipRRect(
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(18)),
                         child: Container(
-                          color: Colors.black.withOpacity(0.45),
+                          color: Colors.black.withOpacity(0.5),
                           child: const Center(
                             child: Text('Habis',
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15)),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16)),
                           ),
                         ),
                       ),
                     ),
+                  // Badge kategori
                   Positioned(
                     top: 8,
                     left: 8,
@@ -406,17 +580,17 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withOpacity(0.92),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(_categoryLabel(menu.category),
                           style: const TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: Color(0xFF2D6A4F))),
                     ),
                   ),
-                  // Badge "Kustomisasi" untuk minuman
+                  // Badge custom (khusus minuman)
                   if (menu.isDrink)
                     Positioned(
                       top: 8,
@@ -438,6 +612,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                 ],
               ),
             ),
+            // Info
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -474,7 +649,9 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                       child: Center(
                         child: Text(
                           menu.isAvailable
-                              ? (menu.isDrink ? '✨ Pilih & Custom' : '+ Keranjang')
+                              ? (menu.isDrink
+                                  ? '✨ Pilih & Custom'
+                                  : '+ Keranjang')
                               : 'Habis',
                           style: TextStyle(
                               color: menu.isAvailable
@@ -496,7 +673,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
   }
 }
 
-// ─── DETAIL + KUSTOMISASI BOTTOM SHEET ─────────────────────────────────────
+// ─── DETAIL + KUSTOMISASI BOTTOM SHEET ──────────────────────────────────────
 
 class _MenuDetailSheet extends StatefulWidget {
   final MenuModel menu;
@@ -513,7 +690,6 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
   late AnimationController _controller;
   late Animation<Offset> _slideAnim;
 
-  // Kustomisasi
   String _matchaGrade = 'culinary';
   double _matchaLevel = 3;
   String _sugarLevel = 'normal';
@@ -525,7 +701,6 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
       'label': 'Culinary',
       'desc': 'Rasa kuat & earthy',
       'extra': '+Rp 0',
-      'extraVal': 0,
       'emoji': '🌿',
     },
     {
@@ -533,7 +708,6 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
       'label': 'Premium',
       'desc': 'Seimbang & creamy',
       'extra': '+Rp 4.000',
-      'extraVal': 4000,
       'emoji': '⭐',
     },
     {
@@ -541,7 +715,6 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
       'label': 'Ceremonial',
       'desc': 'Lembut & autentik',
       'extra': '+Rp 8.000',
-      'extraVal': 8000,
       'emoji': '👑',
     },
   ];
@@ -576,15 +749,14 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
   }
 
   double get _sugarExtra => _sugarLevel == 'extra' ? 2000 : 0;
-  double get _pricePerItem =>
-      widget.menu.price + _gradeExtra + _sugarExtra;
+  double get _pricePerItem => widget.menu.price + _gradeExtra + _sugarExtra;
   double get _totalPrice => _pricePerItem * _qty;
 
   String _menuEmoji(String category) {
     switch (category) {
       case 'drink': return '🍵';
-      case 'food': return '🍰';
-      case 'snack': return '🍪';
+      case 'food': return '🍱';
+      case 'snack': return '🍰';
       default: return '✨';
     }
   }
@@ -598,6 +770,55 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
       case 5: return 'Sangat Kuat';
       default: return 'Sedang';
     }
+  }
+
+  Widget _buildMenuImage() {
+    final menu = widget.menu;
+    Widget imageWidget;
+
+    if (menu.imageBase64.isNotEmpty) {
+      imageWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Image.memory(
+          Uri.parse(menu.imageBase64).data!.contentAsBytes(),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      );
+    } else if (menu.imageUrl.isNotEmpty) {
+      imageWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: CachedNetworkImage(
+          imageUrl: menu.imageUrl,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: (_, __) => Center(
+              child: Text(_menuEmoji(menu.category),
+                  style: const TextStyle(fontSize: 70))),
+          errorWidget: (_, __, ___) => Center(
+              child: Text(_menuEmoji(menu.category),
+                  style: const TextStyle(fontSize: 70))),
+        ),
+      );
+    } else {
+      imageWidget = Center(
+          child: Text(_menuEmoji(menu.category),
+              style: const TextStyle(fontSize: 70)));
+    }
+
+    return Container(
+      height: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFD8F3DC), Color(0xFF95D5B2)],
+        ),
+      ),
+      child: imageWidget,
+    );
   }
 
   @override
@@ -621,7 +842,6 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
             controller: scrollController,
             child: Column(
               children: [
-                // Handle
                 const SizedBox(height: 12),
                 Container(
                   width: 40,
@@ -632,40 +852,13 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Gambar
-                Container(
-                  height: 180,
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFD8F3DC), Color(0xFFB7E4C7)],
-                    ),
-                  ),
-                  child: menu.imageBase64.isEmpty
-                      ? Center(
-                          child: Text(_menuEmoji(menu.category),
-                              style: const TextStyle(fontSize: 70)))
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.memory(
-                            Uri.parse(menu.imageBase64)
-                                .data!
-                                .contentAsBytes(),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
-                        ),
-                ),
+                _buildMenuImage(),
                 const SizedBox(height: 16),
-
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Nama & stok
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -714,13 +907,12 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                               color: Color(0xFF4A4A4A),
                               height: 1.5)),
 
-                      // ── KUSTOMISASI MINUMAN ──────────────────────
                       if (isDrink) ...[
                         const SizedBox(height: 20),
                         const Divider(),
                         const SizedBox(height: 12),
 
-                        // 1. Matcha Grade
+                        // Grade Matcha
                         const Text('Grade Matcha',
                             style: TextStyle(
                                 fontWeight: FontWeight.w800,
@@ -730,18 +922,17 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                         const Text(
                             'Pilih kualitas matcha yang kamu inginkan',
                             style: TextStyle(
-                                fontSize: 11, color: Color(0xFF9E9E9E))),
+                                fontSize: 11,
+                                color: Color(0xFF9E9E9E))),
                         const SizedBox(height: 10),
                         ...(_grades.map((grade) {
                           final isSelected =
                               _matchaGrade == grade['value'];
                           return GestureDetector(
-                            onTap: () => setState(
-                                () => _matchaGrade =
-                                    grade['value'] as String),
+                            onTap: () => setState(() =>
+                                _matchaGrade = grade['value'] as String),
                             child: AnimatedContainer(
-                              duration:
-                                  const Duration(milliseconds: 200),
+                              duration: const Duration(milliseconds: 200),
                               margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
@@ -767,22 +958,18 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        grade['label'] as String,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13,
-                                            color: isSelected
-                                                ? const Color(0xFF2D6A4F)
-                                                : const Color(
-                                                    0xFF1B1B1B)),
-                                      ),
-                                      Text(
-                                        grade['desc'] as String,
-                                        style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Color(0xFF9E9E9E)),
-                                      ),
+                                      Text(grade['label'] as String,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 13,
+                                              color: isSelected
+                                                  ? const Color(0xFF2D6A4F)
+                                                  : const Color(
+                                                      0xFF1B1B1B))),
+                                      Text(grade['desc'] as String,
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF9E9E9E))),
                                     ],
                                   ),
                                 ),
@@ -796,15 +983,13 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                     borderRadius:
                                         BorderRadius.circular(6),
                                   ),
-                                  child: Text(
-                                    grade['extra'] as String,
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : const Color(0xFF9E9E9E)),
-                                  ),
+                                  child: Text(grade['extra'] as String,
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : const Color(0xFF9E9E9E))),
                                 ),
                                 if (isSelected) ...[
                                   const SizedBox(width: 6),
@@ -818,7 +1003,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
 
                         const SizedBox(height: 16),
 
-                        // 2. Kadar Matcha (Slider)
+                        // Kadar Matcha
                         Row(
                           mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
@@ -853,8 +1038,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                           Expanded(
                             child: SliderTheme(
                               data: SliderTheme.of(context).copyWith(
-                                activeTrackColor:
-                                    const Color(0xFF2D6A4F),
+                                activeTrackColor: const Color(0xFF2D6A4F),
                                 inactiveTrackColor:
                                     const Color(0xFFE8EDE9),
                                 thumbColor: const Color(0xFF2D6A4F),
@@ -875,10 +1059,10 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                           const Text('🍵',
                               style: TextStyle(fontSize: 14)),
                         ]),
-                        Row(
+                        const Row(
                           mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
-                          children: const [
+                          children: [
                             Text('Ringan',
                                 style: TextStyle(
                                     fontSize: 10,
@@ -892,7 +1076,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
 
                         const SizedBox(height: 16),
 
-                        // 3. Gula
+                        // Gula
                         const Text('Tingkat Kemanisan',
                             style: TextStyle(
                                 fontWeight: FontWeight.w800,
@@ -900,26 +1084,21 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 color: Color(0xFF1B1B1B))),
                         const SizedBox(height: 10),
                         Row(children: [
-                          _optionChip(
-                              '🍃 Less Sugar', 'less', _sugarLevel,
-                              (v) =>
-                                  setState(() => _sugarLevel = v),
+                          _optionChip('🍃 Less', 'less', _sugarLevel,
+                              (v) => setState(() => _sugarLevel = v),
                               sub: 'Normal'),
                           const SizedBox(width: 8),
-                          _optionChip(
-                              '🍬 Normal', 'normal', _sugarLevel,
+                          _optionChip('🍬 Normal', 'normal', _sugarLevel,
                               (v) => setState(() => _sugarLevel = v)),
                           const SizedBox(width: 8),
-                          _optionChip(
-                              '🍭 Extra', 'extra', _sugarLevel,
-                              (v) =>
-                                  setState(() => _sugarLevel = v),
+                          _optionChip('🍭 Extra', 'extra', _sugarLevel,
+                              (v) => setState(() => _sugarLevel = v),
                               sub: '+Rp 2.000'),
                         ]),
 
                         const SizedBox(height: 16),
 
-                        // 4. Es
+                        // Es
                         const Text('Tingkat Es',
                             style: TextStyle(
                                 fontWeight: FontWeight.w800,
@@ -927,16 +1106,13 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 color: Color(0xFF1B1B1B))),
                         const SizedBox(height: 10),
                         Row(children: [
-                          _optionChip('🌡️ Less Ice', 'less',
-                              _iceLevel,
+                          _optionChip('🌡️ Less', 'less', _iceLevel,
                               (v) => setState(() => _iceLevel = v)),
                           const SizedBox(width: 8),
-                          _optionChip('🧊 Normal', 'normal',
-                              _iceLevel,
+                          _optionChip('🧊 Normal', 'normal', _iceLevel,
                               (v) => setState(() => _iceLevel = v)),
                           const SizedBox(width: 8),
-                          _optionChip('❄️ Extra', 'extra',
-                              _iceLevel,
+                          _optionChip('❄️ Extra', 'extra', _iceLevel,
                               (v) => setState(() => _iceLevel = v)),
                         ]),
                       ],
@@ -962,8 +1138,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                   onPressed: _qty > 1
                                       ? () => setState(() => _qty--)
                                       : null,
-                                  icon: const Icon(
-                                      Icons.remove_rounded),
+                                  icon: const Icon(Icons.remove_rounded),
                                   color: const Color(0xFF2D6A4F),
                                   iconSize: 18,
                                 ),
@@ -990,8 +1165,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                       await widget.cart.addToCart(
                                         menu,
                                         matchaGrade: _matchaGrade,
-                                        matchaLevel:
-                                            _matchaLevel.round(),
+                                        matchaLevel: _matchaLevel.round(),
                                         sugarLevel: _sugarLevel,
                                         iceLevel: _iceLevel,
                                         quantity: _qty,
