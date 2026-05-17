@@ -107,153 +107,229 @@ class FirestoreService {
   // ─── SEEDER ─────────────────────────────────────────
 
   Future<void> seedMenusIfEmpty() async {
-    // Ganti angka versi ini setiap kali mau reset data
-    const String dataVersion = 'matchacih_v2';
+  const String dataVersion = 'matchacih_v3';
+  final prefs = await SharedPreferences.getInstance();
+  final savedVersion = prefs.getString('data_version');
+  if (savedVersion == dataVersion) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    final savedVersion = prefs.getString('data_version');
+  // Hapus data lama
+  final oldMenus = await _db.collection('menus').get();
+  for (var doc in oldMenus.docs) await doc.reference.delete();
+  final oldOrders = await _db.collection('orders').get();
+  for (var doc in oldOrders.docs) await doc.reference.delete();
+  final oldCarts = await _db.collection('carts').get();
+  for (var doc in oldCarts.docs) await doc.reference.delete();
 
-    // Jika versi sama, skip seeder
-    if (savedVersion == dataVersion) return;
+  final List<Map<String, dynamic>> menus = [
+    // ── MINUMAN ──
+    {
+      'name': 'Matcha Original',
+      'price': 13000.0,
+      'category': 'drink',
+      'stock': 20,
+      'description': 'Perpaduan matcha segar dengan susu pilihan. Rasa klasik yang tidak pernah mengecewakan.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_original.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Yakult',
+      'price': 15000.0,
+      'category': 'drink',
+      'stock': 20,
+      'description': 'Kombinasi unik matcha dengan yakult yang menyegarkan. Asam manis yang bikin nagih.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_yakult.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Taro',
+      'price': 15000.0,
+      'category': 'drink',
+      'stock': 18,
+      'description': 'Matcha bertemu taro dalam satu gelas. Paduan warna dan rasa yang memanjakan.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_taro.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Grape',
+      'price': 15000.0,
+      'category': 'drink',
+      'stock': 18,
+      'description': 'Matcha dengan sentuhan rasa anggur yang segar dan susu creamy.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_grape.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Cloud',
+      'price': 16000.0,
+      'category': 'drink',
+      'stock': 15,
+      'description': 'Matcha lembut dengan susu dan topping es krim vanilla. Ringan seperti awan.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_cloud.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Blueberry',
+      'price': 18000.0,
+      'category': 'drink',
+      'stock': 15,
+      'description': 'Matcha berpadu dengan rasa blueberry dan selai blueberry asli. Manis berwarna cantik.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_blueberry.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Choco',
+      'price': 18000.0,
+      'category': 'drink',
+      'stock': 15,
+      'description': 'Dua rasa favorit dalam satu gelas — matcha dan coklat. Kaya rasa, kaya sensasi.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_choco.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matchaku Strawberry',
+      'price': 18000.0,
+      'category': 'drink',
+      'stock': 15,
+      'description': 'Matcha dengan rasa strawberry dan selai strawberry asli. Segar, manis, dan instagramable.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_strawberry.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    // ── SNACK ──
+    {
+      'name': 'Matcha Tiramisu',
+      'price': 16000.0,
+      'category': 'snack',
+      'stock': 12,
+      'description': 'Kue tiramisu lembut dengan krim dan taburan bubuk matcha premium di atasnya.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_tiramisu.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Soufflé',
+      'price': 20000.0,
+      'category': 'snack',
+      'stock': 10,
+      'description': 'Pancake soufflé super lembut, mochi daifuku kenyal, selai strawberry, dan es krim.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_souffle.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Mille Crepe',
+      'price': 17000.0,
+      'category': 'snack',
+      'stock': 10,
+      'description': 'Kue dadar berlapis dengan krim matcha lembut dan taburan bubuk matcha premium.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_mille_crepe.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Basque Cake',
+      'price': 19000.0,
+      'category': 'snack',
+      'stock': 8,
+      'description': 'Kue keju panggang ala Basque dengan matcha premium. Luar gelap, dalam creamy.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_basque_cake.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Pudding Ice Cream',
+      'price': 16000.0,
+      'category': 'snack',
+      'stock': 12,
+      'description': 'Puding matcha segar dengan saus karamel dan es krim vanilla. Dingin menyegarkan.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_pudding.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Brownie',
+      'price': 13000.0,
+      'category': 'snack',
+      'stock': 15,
+      'description': 'Brownies panggang dengan cita rasa matcha yang kuat. Renyah di luar, lembut di dalam.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_brownie.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    // ── MAKANAN ──
+    {
+      'name': 'Matcha Chicken Katsu Rice',
+      'price': 24000.0,
+      'category': 'food',
+      'stock': 10,
+      'description': 'Nasi hangat dengan chicken katsu crispy disiram saus matcha creamy yang gurih.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_katsu_rice.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Carbonara Udon',
+      'price': 26000.0,
+      'category': 'food',
+      'stock': 8,
+      'description': 'Udon kenyal dengan saus cream matcha dan smoked beef. Fusion Jepang yang menggugah.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_udon.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Omurice',
+      'price': 25000.0,
+      'category': 'food',
+      'stock': 10,
+      'description': 'Nasi goreng butter dibungkus telur omelette lembut dengan saus matcha cream di atas.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_omurice.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Curry Rice',
+      'price': 26000.0,
+      'category': 'food',
+      'stock': 8,
+      'description': 'Nasi hangat dengan kari ayam creamy dan sentuhan matcha premium yang khas.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_curry.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Burger',
+      'price': 24000.0,
+      'category': 'food',
+      'stock': 10,
+      'description': 'Roti bun matcha dengan beef patty juicy, cheese melt, dan saus mayo matcha spesial.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_burger.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+    {
+      'name': 'Matcha Mie Goreng',
+      'price': 21000.0,
+      'category': 'food',
+      'stock': 12,
+      'description': 'Mie goreng homemade dengan saus savory matcha, telur, dan sayuran segar pilihan.',
+      'imageBase64': '',
+      'imagePath': 'assets/images/menu/matcha_mie_goreng.jpg',
+      'createdAt': FieldValue.serverTimestamp(),
+    },
+  ];
 
-    // Hapus semua menu lama
-    final oldMenus = await _db.collection('menus').get();
-    for (var doc in oldMenus.docs) {
-      await doc.reference.delete();
-    }
-
-// Hapus semua orders lama
-    final oldOrders = await _db.collection('orders').get();
-    for (var doc in oldOrders.docs) {
-      await doc.reference.delete();
-    }
-
-// Hapus semua carts lama
-    final oldCarts = await _db.collection('carts').get();
-    for (var doc in oldCarts.docs) {
-      await doc.reference.delete();
-    }
-
-    // Isi menu baru
-    final List<Map<String, dynamic>> sampleMenus = [
-      // ── MINUMAN ──
-      {
-        'name': 'Avocado Matcha',
-        'price': 15000.0,
-        'category': 'drink',
-        'stock': 20,
-        'description': 'Minuman matcha dengan rasa alpukat',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Latte',
-        'price': 28000.0,
-        'category': 'drink',
-        'stock': 20,
-        'description':
-            'Espresso matcha premium dicampur susu segar, lembut dan creamy dengan aroma matcha yang kuat.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Frappe',
-        'price': 32000.0,
-        'category': 'drink',
-        'stock': 15,
-        'description':
-            'Minuman matcha dingin blended dengan es dan whipped cream, segar dan manis.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Iced Matcha Americano',
-        'price': 25000.0,
-        'category': 'drink',
-        'stock': 20,
-        'description':
-            'Matcha grade A dicampur air dingin dan es, rasa matcha murni tanpa susu.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Milk Tea',
-        'price': 27000.0,
-        'category': 'drink',
-        'stock': 18,
-        'description':
-            'Teh susu dengan bubuk matcha pilihan, ada pilihan dengan boba atau polos.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      // ── MAKANAN ──
-      {
-        'name': 'Matcha Lava Cake',
-        'price': 35000.0,
-        'category': 'food',
-        'stock': 10,
-        'description':
-            'Kue coklat hangat dengan isian matcha cair yang meleleh, disajikan dengan es krim vanilla.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Pancake Stack',
-        'price': 38000.0,
-        'category': 'food',
-        'stock': 8,
-        'description':
-            'Tumpukan pancake matcha fluffy dengan butter dan matcha syrup, sarapan favorit.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Ice Cream',
-        'price': 22000.0,
-        'category': 'food',
-        'stock': 15,
-        'description':
-            'Es krim matcha premium dengan rasa autentik Jepang, tersedia 1 atau 2 scoop.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      // ── SNACK ──
-      {
-        'name': 'Matcha Cookie Box',
-        'price': 20000.0,
-        'category': 'snack',
-        'stock': 12,
-        'description':
-            'Kotak berisi 6 cookies matcha renyah dengan white chocolate chips.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Donut',
-        'price': 18000.0,
-        'category': 'snack',
-        'stock': 10,
-        'description':
-            'Donut glazed matcha dengan taburan bubuk matcha di atasnya, lembut dan harum.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-      {
-        'name': 'Matcha Mochi',
-        'price': 15000.0,
-        'category': 'snack',
-        'stock': 20,
-        'description': 'Mochi kenyal isi pasta matcha manis, 3 pcs per porsi.',
-        'imageBase64': '',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-    ];
-
-    for (var menu in sampleMenus) {
-      await _db.collection('menus').add(menu);
-    }
-
-    // Simpan versi baru
-    await prefs.setString('data_version', dataVersion);
+  for (var menu in menus) {
+    await _db.collection('menus').add(menu);
   }
+
+  await prefs.setString('data_version', dataVersion);
+}
 }

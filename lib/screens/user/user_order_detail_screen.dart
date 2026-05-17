@@ -8,34 +8,19 @@ class UserOrderDetailScreen extends StatelessWidget {
   final OrderModel order;
   const UserOrderDetailScreen({super.key, required this.order});
 
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'pending': return const Color(0xFFF39C12);
-      case 'processed': return const Color(0xFF3498DB);
-      case 'completed': return const Color(0xFF2ECC71);
-      default: return const Color(0xFFE74C3C);
-    }
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'pending': return 'Menunggu Konfirmasi';
-      case 'processed': return 'Sedang Diproses';
-      case 'completed': return 'Pesanan Selesai';
-      default: return 'Dibatalkan';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final color = Color(order.statusColorValue);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF8F9F4),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: const Color(0xFF2D6A4F),
         foregroundColor: Colors.white,
         title: Text(
             'Order #${order.orderId.substring(0, 6).toUpperCase()}',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: const TextStyle(fontWeight: FontWeight.w800)),
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -46,128 +31,228 @@ class UserOrderDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _statusColor(order.status).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: _statusColor(order.status).withOpacity(0.3)),
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: color.withOpacity(0.3)),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    order.status == 'completed'
-                        ? Icons.check_circle
-                        : order.status == 'cancelled'
-                            ? Icons.cancel
-                            : order.status == 'processed'
-                                ? Icons.sync
-                                : Icons.pending_actions,
-                    color: _statusColor(order.status),
-                    size: 32,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
+              child: Row(children: [
+                Text(order.statusEmoji,
+                    style: const TextStyle(fontSize: 32)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_statusLabel(order.status),
+                      Text(order.statusLabel,
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: _statusColor(order.status),
+                              fontWeight: FontWeight.w800,
+                              color: color,
                               fontSize: 16)),
                       Text(
-                          DateFormat('dd MMM yyyy, HH:mm')
-                              .format(order.createdAt),
-                          style: const TextStyle(
-                              color: Color(0xFF7F8C8D),
-                              fontSize: 12)),
+                        DateFormat('dd MMM yyyy, HH:mm')
+                            .format(order.createdAt),
+                        style: const TextStyle(
+                            color: Color(0xFF9E9E9E), fontSize: 12),
+                      ),
                     ],
                   ),
+                ),
+                // Badge tipe pesanan
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: order.isPickup
+                        ? const Color(0xFF4895EF).withOpacity(0.15)
+                        : const Color(0xFF9B5DE5).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    order.isPickup ? '🏃 Pick Up' : '🛵 Delivery',
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: order.isPickup
+                            ? const Color(0xFF4895EF)
+                            : const Color(0xFF9B5DE5)),
+                  ),
+                ),
+              ]),
+            ),
+            const SizedBox(height: 12),
+
+            // Info pickup/delivery
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2))
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    order.isPickup
+                        ? '🏃 Informasi Pick Up'
+                        : '🛵 Informasi Delivery',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1B1B1B)),
+                  ),
+                  const SizedBox(height: 8),
+                  if (order.isPickup && order.pickupTime != null)
+                    _detailRow(Icons.access_time_rounded,
+                        'Waktu Ambil', order.pickupTime!),
+                  if (order.isDelivery &&
+                      order.deliveryAddress != null) ...[
+                    _detailRow(Icons.location_on_rounded, 'Alamat',
+                        order.deliveryAddress!),
+                    if (order.deliveryFee > 0)
+                      _detailRow(
+                        Icons.delivery_dining_rounded,
+                        'Ongkir',
+                        'Rp ${order.deliveryFee.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                      ),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
             // Item pesanan
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2))
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Item Pesanan',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           fontSize: 15,
-                          color: Color(0xFF2C3E50))),
+                          color: Color(0xFF1B1B1B))),
                   const Divider(height: 20),
-                  ...order.items.map((item) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Text(item['name'],
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF2C3E50))),
-                                  Text(
-                                      'Rp ${item['price'].toStringAsFixed(0)} x ${item['quantity']}',
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF7F8C8D))),
-                                ],
-                              ),
-                            ),
-                            Text(
-                                'Rp ${(item['price'] * item['quantity']).toStringAsFixed(0)}',
+                  ...order.items.map((item) {
+                    final customParts = <String>[];
+                    if (item['matchaGrade'] != null)
+                      customParts.add(item['matchaGrade']);
+                    if (item['matchaLevel'] != null)
+                      customParts.add('Lvl ${item['matchaLevel']}');
+                    if (item['sugarLevel'] != null &&
+                        item['sugarLevel'] != 'normal')
+                      customParts.add('${item['sugarLevel']} sugar');
+                    if (item['iceLevel'] != null &&
+                        item['iceLevel'] != 'normal')
+                      customParts.add('${item['iceLevel']} ice');
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '${item['name']} x${item['quantity']}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1B1B1B))),
+                              if (customParts.isNotEmpty)
+                                Text(customParts.join(' · '),
+                                    style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF9E9E9E))),
+                              Text(
+                                'Rp ${item['price'].toStringAsFixed(0)} / item',
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2C3E50))),
-                          ],
+                                    fontSize: 11,
+                                    color: Color(0xFF9E9E9E)),
+                              ),
+                            ],
+                          ),
                         ),
-                      )),
+                        Text(
+                          'Rp ${(item['price'] * item['quantity']).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF2D6A4F))),
+                      ]),
+                    );
+                  }),
                   const Divider(height: 20),
+                  if (order.deliveryFee > 0) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Ongkir',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF9E9E9E))),
+                        Text(
+                          'Rp ${order.deliveryFee.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF9E9E9E))),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                  ],
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Total',
+                      const Text('Total Bayar',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                               fontSize: 16,
-                              color: Color(0xFF2C3E50))),
+                              color: Color(0xFF1B1B1B))),
                       Text(
-                          'Rp ${order.totalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Color(0xFF2ECC71))),
+                        'Rp ${order.grandTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                            color: Color(0xFF2D6A4F))),
                     ],
                   ),
                 ],
               ),
             ),
+
             // Catatan
             if (order.note.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2))
+                  ],
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(Icons.note_outlined,
-                        color: Color(0xFFF39C12)),
+                        color: Color(0xFFF4A261)),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -175,12 +260,12 @@ class UserOrderDetailScreen extends StatelessWidget {
                         children: [
                           const Text('Catatan',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2C3E50))),
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1B1B1B))),
                           const SizedBox(height: 4),
                           Text(order.note,
                               style: const TextStyle(
-                                  color: Color(0xFF7F8C8D))),
+                                  color: Color(0xFF4A4A4A))),
                         ],
                       ),
                     ),
@@ -188,23 +273,26 @@ class UserOrderDetailScreen extends StatelessWidget {
                 ),
               ),
             ],
-            // Tombol batalkan
+
+            // Batalkan pesanan (hanya jika pending)
             if (order.status == 'pending') ...[
               const SizedBox(height: 24),
               SizedBox(
                 height: 50,
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE74C3C),
-                    side: const BorderSide(color: Color(0xFFE74C3C)),
+                    foregroundColor: const Color(0xFFE63946),
+                    side: const BorderSide(color: Color(0xFFE63946)),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   onPressed: () async {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (_) => AlertDialog(
-                        title: const Text('Batalkan Pesanan'),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        title: const Text('Batalkan Pesanan?'),
                         content: const Text(
                             'Yakin ingin membatalkan pesanan ini?'),
                         actions: [
@@ -215,8 +303,11 @@ class UserOrderDetailScreen extends StatelessWidget {
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    const Color(0xFFE74C3C),
-                                foregroundColor: Colors.white),
+                                    const Color(0xFFE63946),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(10))),
                             onPressed: () =>
                                 Navigator.pop(context, true),
                             child: const Text('Ya, Batalkan'),
@@ -229,25 +320,47 @@ class UserOrderDetailScreen extends StatelessWidget {
                           .read<OrderProvider>()
                           .cancelOrder(order.orderId);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Pesanan dibatalkan.'),
-                            backgroundColor: Color(0xFFE74C3C),
-                          ),
-                        );
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('Pesanan dibatalkan.'),
+                          backgroundColor: Color(0xFFE63946),
+                          behavior: SnackBarBehavior.floating,
+                        ));
                         Navigator.pop(context);
                       }
                     }
                   },
                   child: const Text('Batalkan Pesanan',
                       style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
+            const SizedBox(height: 32),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(children: [
+        Icon(icon, size: 16, color: const Color(0xFF9E9E9E)),
+        const SizedBox(width: 6),
+        Text('$label: ',
+            style: const TextStyle(
+                fontSize: 12, color: Color(0xFF9E9E9E))),
+        Expanded(
+          child: Text(value,
+              style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1B1B1B))),
+        ),
+      ]),
     );
   }
 }
