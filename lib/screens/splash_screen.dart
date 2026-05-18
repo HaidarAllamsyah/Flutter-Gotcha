@@ -4,7 +4,6 @@ import '../providers/auth_provider.dart';
 import '../providers/menu_provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/order_provider.dart';
-import '../theme/app_theme.dart';
 import 'user/login_screen.dart';
 import 'admin/admin_main_screen.dart';
 import 'user/user_main_screen.dart';
@@ -17,25 +16,47 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnim;
-  late Animation<double> _scaleAnim;
+    with TickerProviderStateMixin {
+  late AnimationController _logoController;
+  late AnimationController _textController;
+  late Animation<double> _logoScale;
+  late Animation<double> _logoFade;
+  late Animation<double> _textFade;
+  late Animation<Offset> _textSlide;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+
+    _logoController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 800),
     );
-    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
     );
-    _scaleAnim = Tween<double>(begin: 0.8, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+
+    _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
-    _controller.forward();
+    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController,
+          curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
+    );
+    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _textController, curve: Curves.easeOut),
+    );
+    _textSlide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+        parent: _textController, curve: Curves.easeOutCubic));
+
+    // Sequence animasi
+    _logoController.forward().then((_) {
+      _textController.forward();
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _listenAndNavigate();
@@ -44,21 +65,22 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _logoController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
   void _listenAndNavigate() {
     final authProvider = context.read<AuthProvider>();
     if (!authProvider.isInitializing) {
-      Future.delayed(const Duration(milliseconds: 1500), () {
+      Future.delayed(const Duration(milliseconds: 1800), () {
         _navigate(authProvider);
       });
       return;
     }
     authProvider.addListener(() {
       if (!authProvider.isInitializing && mounted) {
-        Future.delayed(const Duration(milliseconds: 800), () {
+        Future.delayed(const Duration(milliseconds: 1000), () {
           _navigate(authProvider);
         });
       }
@@ -72,17 +94,38 @@ class _SplashScreenState extends State<SplashScreen>
       context.read<MenuProvider>().listenMenus();
       if (user.isAdmin) {
         context.read<OrderProvider>().listenAllOrders();
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (_) => const AdminMainScreen()));
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => const AdminMainScreen(),
+            transitionDuration: const Duration(milliseconds: 500),
+            transitionsBuilder: (_, animation, __, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
+        );
       } else {
         context.read<CartProvider>().listenCart(user.userId);
         context.read<OrderProvider>().listenUserOrders(user.userId);
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (_) => const UserMainScreen()));
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => const UserMainScreen(),
+            transitionDuration: const Duration(milliseconds: 500),
+            transitionsBuilder: (_, animation, __, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
+        );
       }
     } else {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()));
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const LoginScreen(),
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionsBuilder: (_, animation, __, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
+      );
     }
   }
 
@@ -94,23 +137,20 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppTheme.primary,
-              Color(0xFF1B4332),
-            ],
+            colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
           ),
         ),
         child: SafeArea(
           child: Center(
-            child: FadeTransition(
-              opacity: _fadeAnim,
-              child: ScaleTransition(
-                scale: _scaleAnim,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Logo placeholder
-                    Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo animasi
+                ScaleTransition(
+                  scale: _logoScale,
+                  child: FadeTransition(
+                    opacity: _logoFade,
+                    child: Container(
                       width: 110,
                       height: 110,
                       decoration: BoxDecoration(
@@ -120,53 +160,74 @@ class _SplashScreenState extends State<SplashScreen>
                           color: Colors.white.withOpacity(0.3),
                           width: 1.5,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 30,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                      child: Center(
-                        child: Text(
-                          '🍵',
-                          style: const TextStyle(fontSize: 52),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Matchacih',
-                      style: TextStyle(
-                        fontSize: 38,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -1,
+                      child: const Center(
+                        child: Text('🍵',
+                            style: TextStyle(fontSize: 52)),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Sip the Green Goodness',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white70,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 60),
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        color: Colors.white.withOpacity(0.7),
-                        strokeWidth: 2.5,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 24),
+
+                // Teks animasi
+                SlideTransition(
+                  position: _textSlide,
+                  child: FadeTransition(
+                    opacity: _textFade,
+                    child: Column(children: [
+                      const Text(
+                        'Matchacih',
+                        style: TextStyle(
+                          fontSize: 38,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Sip the Green Goodness ✨',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ),
+
+                const SizedBox(height: 60),
+
+                // Loading indicator
+                FadeTransition(
+                  opacity: _textFade,
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      color: Colors.white.withOpacity(0.7),
+                      strokeWidth: 2.5,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

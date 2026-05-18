@@ -3,17 +3,23 @@ import '../models/order_model.dart';
 import '../models/user_model.dart';
 import '../models/cart_item_model.dart';
 import '../services/firestore_service.dart';
+import '../services/notification_service.dart';
 
 class OrderProvider extends ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
 
   List<OrderModel> _orders = [];
   bool _isLoading = false;
+  bool _isAdmin = false;
+
+  // Simpan status sebelumnya untuk deteksi perubahan
+  final Map<String, String> _previousStatuses = {};
 
   List<OrderModel> get orders => _orders;
   bool get isLoading => _isLoading;
 
   void listenAllOrders() {
+    _isAdmin = true;
     _firestoreService.getAllOrders().listen((list) {
       _orders = List.from(list);
       notifyListeners();
@@ -21,7 +27,25 @@ class OrderProvider extends ChangeNotifier {
   }
 
   void listenUserOrders(String userId) {
+    _isAdmin = false;
     _firestoreService.getUserOrders(userId).listen((list) {
+      // Deteksi perubahan status untuk notifikasi
+      for (final order in list) {
+        final prevStatus = _previousStatuses[order.orderId];
+        if (prevStatus != null &&
+            prevStatus != order.status &&
+            !_isAdmin) {
+          // Status berubah → tampilkan notifikasi
+          NotificationService.showStatusNotification(
+            orderNumber: order.orderId.substring(0, 6).toUpperCase(),
+            statusLabel: order.statusLabel,
+            statusEmoji: order.statusEmoji,
+            color: Color(order.statusColorValue),
+          );
+        }
+        _previousStatuses[order.orderId] = order.status;
+      }
+
       _orders = List.from(list);
       notifyListeners();
     });
@@ -41,12 +65,8 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Kurangi stok
       for (var item in items) {
-        await _firestoreService.updateStock(
-          item.menuId,
-          -item.quantity,
-        );
+        await _firestoreService.updateStock(item.menuId, -item.quantity);
       }
 
       final order = OrderModel(

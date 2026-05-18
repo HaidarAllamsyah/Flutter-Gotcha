@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/menu_provider.dart';
 import '../../models/menu_model.dart';
 import 'admin_add_edit_menu_screen.dart';
+import '../../utils/app_router.dart';
 
 class AdminMenuScreen extends StatefulWidget {
   const AdminMenuScreen({super.key});
@@ -78,8 +79,7 @@ class _AdminMenuScreenState extends State<AdminMenuScreen> {
                 child: GestureDetector(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (_) => const AdminAddEditMenuScreen()),
+                    AppRouter.slideUp(const AdminAddEditMenuScreen()),
                   ),
                   child: Container(
                     width: 38,

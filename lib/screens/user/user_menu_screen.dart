@@ -7,6 +7,8 @@ import '../../providers/menu_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/menu_model.dart';
+import '../../widgets/shimmer_loading.dart';
+import 'package:flutter/services.dart';
 
 class UserMenuScreen extends StatefulWidget {
   final VoidCallback? onGoToCart;
@@ -469,10 +471,22 @@ class _UserMenuScreenState extends State<UserMenuScreen>
 
           // Grid menu
           menuProvider.isLoading
-              ? const SliverFillRemaining(
-                  child: Center(
-                      child: CircularProgressIndicator(
-                          color: Color(0xFF2D6A4F))))
+    ? SliverPadding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+        sliver: SliverGrid(
+          delegate: SliverChildBuilderDelegate(
+            (_, __) => const MenuCardShimmer(),
+            childCount: 6,
+          ),
+          gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+        ),
+      )
               : menus.isEmpty
                   ? const SliverFillRemaining(
                       child: Center(
@@ -1162,6 +1176,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                             child: ElevatedButton(
                               onPressed: menu.isAvailable
                                   ? () async {
+                                    HapticFeedback.mediumImpact();
                                       await widget.cart.addToCart(
                                         menu,
                                         matchaGrade: _matchaGrade,

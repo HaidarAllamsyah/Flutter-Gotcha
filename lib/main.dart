@@ -8,6 +8,7 @@ import 'providers/cart_provider.dart';
 import 'providers/order_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/firestore_service.dart';
+import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -37,6 +38,8 @@ class MyApp extends StatelessWidget {
         title: 'Matchacih',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
+        // navigatorKey untuk notifikasi in-app
+        navigatorKey: NotificationService.navigatorKey,
         home: const SplashScreen(),
       ),
     );

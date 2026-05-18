@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import 'user_checkout_screen.dart';
+import '../../utils/app_router.dart';
 
 class UserCartScreen extends StatelessWidget {
   const UserCartScreen({super.key});
@@ -292,10 +293,9 @@ class UserCartScreen extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                const UserCheckoutScreen())),
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const UserCheckoutScreen())),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2D6A4F),
                       foregroundColor: Colors.white,

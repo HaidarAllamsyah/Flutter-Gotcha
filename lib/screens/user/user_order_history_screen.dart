@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:resto_app/utils/app_router.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import 'user_order_detail_screen.dart';
+import '../../utils/app_router.dart';
 
 class UserOrderHistoryScreen extends StatefulWidget {
   const UserOrderHistoryScreen({super.key});
@@ -133,9 +135,8 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
                     child: GestureDetector(
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                UserOrderDetailScreen(order: order)),
+                        AppRouter.slideRight(
+                            UserOrderDetailScreen(order: order)),
                       ),
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),

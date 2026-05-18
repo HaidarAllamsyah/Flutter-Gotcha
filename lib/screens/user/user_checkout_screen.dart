@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
+import 'package:flutter/services.dart';
 
 class UserCheckoutScreen extends StatefulWidget {
   const UserCheckoutScreen({super.key});
@@ -96,7 +97,8 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
 
   Future<void> _placeOrder() async {
     // Validasi
-    if (_orderType == 'delivery' && _addressController.text.trim().length < 10) {
+    if (_orderType == 'delivery' &&
+        _addressController.text.trim().length < 10) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Masukkan alamat lengkap untuk delivery'),
         backgroundColor: Color(0xFFE63946),
@@ -112,9 +114,8 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
     final orderProvider = context.read<OrderProvider>();
 
     final pickupTimeStr = _orderType == 'pickup' ? _formattedPickupTime : null;
-    final deliveryAddr = _orderType == 'delivery'
-        ? _addressController.text.trim()
-        : null;
+    final deliveryAddr =
+        _orderType == 'delivery' ? _addressController.text.trim() : null;
 
     final success = await orderProvider.placeOrder(
       user: auth.currentUser!,
@@ -155,8 +156,8 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
-    final grandTotal = cart.totalPrice +
-        (_orderType == 'delivery' ? _deliveryFee : 0);
+    final grandTotal =
+        cart.totalPrice + (_orderType == 'delivery' ? _deliveryFee : 0);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9F4),
@@ -172,7 +173,6 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             // ── Ringkasan item ──────────────────────────────
             _sectionCard(
               title: '🧾 Ringkasan Pesanan',
@@ -201,10 +201,10 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                             ),
                           ),
                           Text(
-                            'Rp ${item.totalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF2D6A4F))),
+                              'Rp ${item.totalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF2D6A4F))),
                         ],
                       ),
                     );
@@ -213,8 +213,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                   _priceRow('Subtotal', cart.totalPrice),
                   if (_orderType == 'delivery') ...[
                     const SizedBox(height: 4),
-                    _priceRow('Ongkos Kirim ($_estimatedKm km)',
-                        _deliveryFee),
+                    _priceRow('Ongkos Kirim ($_estimatedKm km)', _deliveryFee),
                   ],
                   const Divider(height: 16),
                   Row(
@@ -226,11 +225,11 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                               fontSize: 15,
                               color: Color(0xFF1B1B1B))),
                       Text(
-                        'Rp ${grandTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18,
-                            color: Color(0xFF2D6A4F))),
+                          'Rp ${grandTotal.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              color: Color(0xFF2D6A4F))),
                     ],
                   ),
                 ],
@@ -317,12 +316,12 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                           'Masukkan alamat lengkap...\nContoh: Jl. Matcha No. 17, Surabaya',
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                              color: Color(0xFFE8EDE9))),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFE8EDE9))),
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                              color: Color(0xFFE8EDE9))),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFE8EDE9))),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
@@ -339,8 +338,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                         color: const Color(0xFFF4A261).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: const Color(0xFFF4A261)
-                                .withOpacity(0.3)),
+                            color: const Color(0xFFF4A261).withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -348,14 +346,13 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                           Text(
                             '🛵 Estimasi $_estimatedKm km',
                             style: const TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF4A4A4A)),
+                                fontSize: 13, color: Color(0xFF4A4A4A)),
                           ),
                           Text(
-                            'Rp ${_deliveryFee.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFFF4A261))),
+                              'Rp ${_deliveryFee.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFF4A261))),
                         ],
                       ),
                     ),
@@ -375,12 +372,10 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                   hintText: 'Pesan khusus untuk barista...',
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFE8EDE9))),
+                      borderSide: const BorderSide(color: Color(0xFFE8EDE9))),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFE8EDE9))),
+                      borderSide: const BorderSide(color: Color(0xFFE8EDE9))),
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
@@ -396,7 +391,12 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
             SizedBox(
               height: 54,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _placeOrder,
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        HapticFeedback.heavyImpact();
+                        _placeOrder();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2D6A4F),
                   foregroundColor: Colors.white,
@@ -470,9 +470,8 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
               : const Color(0xFFF8F9F4),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF2D6A4F)
-                : const Color(0xFFE8EDE9),
+            color:
+                isSelected ? const Color(0xFF2D6A4F) : const Color(0xFFE8EDE9),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -487,8 +486,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                       ? const Color(0xFF2D6A4F)
                       : const Color(0xFF1B1B1B))),
           Text(subtitle,
-              style: const TextStyle(
-                  fontSize: 11, color: Color(0xFF9E9E9E))),
+              style: const TextStyle(fontSize: 11, color: Color(0xFF9E9E9E))),
         ]),
       ),
     );
@@ -521,8 +519,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                         fontSize: 11, color: Color(0xFF9E9E9E))),
                 Text(value,
                     style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1B1B1B))),
+                        fontWeight: FontWeight.w700, color: Color(0xFF1B1B1B))),
               ],
             ),
           ),
@@ -538,12 +535,11 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 13, color: Color(0xFF9E9E9E))),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF9E9E9E))),
         Text(
-          'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-          style: const TextStyle(
-              fontWeight: FontWeight.w600, color: Color(0xFF4A4A4A))),
+            'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+            style: const TextStyle(
+                fontWeight: FontWeight.w600, color: Color(0xFF4A4A4A))),
       ],
     );
   }
