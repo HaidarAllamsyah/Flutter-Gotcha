@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class OrderModel {
   final String orderId;
   final String userId;
@@ -97,15 +99,15 @@ class OrderModel {
     }
   }
 
-  String get statusEmoji {
+  IconData get statusIcon {
     switch (status) {
-      case 'pending': return '⏳';
-      case 'processing': return '👨‍🍳';
-      case 'ready': return '✅';
-      case 'on_delivery': return '🛵';
-      case 'completed': return '🎉';
-      case 'cancelled': return '❌';
-      default: return '📋';
+      case 'pending': return Icons.hourglass_empty_rounded;
+      case 'processing': return Icons.soup_kitchen_outlined;
+      case 'ready': return Icons.check_circle_outline_rounded;
+      case 'on_delivery': return Icons.delivery_dining_outlined;
+      case 'completed': return Icons.done_all_rounded;
+      case 'cancelled': return Icons.cancel_outlined;
+      default: return Icons.receipt_long_outlined;
     }
   }
 
@@ -113,9 +115,9 @@ class OrderModel {
   static const Map<String, int> statusColors = {
     'pending': 0xFFF4A261,
     'processing': 0xFF4895EF,
-    'ready': 0xFF52B788,
+    'ready': 0xFFB7D64A,
     'on_delivery': 0xFF9B5DE5,
-    'completed': 0xFF2D6A4F,
+    'completed': 0xFF6B7D1F,
     'cancelled': 0xFFE63946,
   };
 
@@ -144,16 +146,16 @@ class OrderModel {
   String? get nextStatusLabel {
     if (isPickup) {
       switch (status) {
-        case 'pending': return '👨‍🍳  Proses Pesanan';
-        case 'processing': return '✅  Tandai Siap Diambil';
-        case 'ready': return '🎉  Pesanan Sudah Diambil';
+        case 'pending': return 'Proses Pesanan';
+        case 'processing': return 'Tandai Siap Diambil';
+        case 'ready': return 'Pesanan Sudah Diambil';
         default: return null;
       }
     } else {
       switch (status) {
-        case 'pending': return '👨‍🍳  Proses Pesanan';
-        case 'processing': return '🛵  Kirim ke Kurir';
-        case 'on_delivery': return '🎉  Konfirmasi Sudah Diantar';
+        case 'pending': return 'Proses Pesanan';
+        case 'processing': return 'Kirim ke Kurir';
+        case 'on_delivery': return 'Konfirmasi Sudah Diantar';
         default: return null;
       }
     }

@@ -15,7 +15,7 @@ class UserOrderDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9F4),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D6A4F),
+        backgroundColor: const Color(0xFF6B7D1F),
         foregroundColor: Colors.white,
         title: Text(
             'Order #${order.orderId.substring(0, 6).toUpperCase()}',
@@ -36,8 +36,8 @@ class UserOrderDetailScreen extends StatelessWidget {
                 border: Border.all(color: color.withOpacity(0.3)),
               ),
               child: Row(children: [
-                Text(order.statusEmoji,
-                    style: const TextStyle(fontSize: 32)),
+                Icon(order.statusIcon,
+                    color: color, size: 32),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -68,7 +68,7 @@ class UserOrderDetailScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    order.isPickup ? '🏃 Pick Up' : '🛵 Delivery',
+                    order.isPickup ? 'Pick Up' : 'Delivery',
                     style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -99,8 +99,8 @@ class UserOrderDetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     order.isPickup
-                        ? '🏃 Informasi Pick Up'
-                        : '🛵 Informasi Delivery',
+                        ? 'Informasi Pick Up'
+                        : 'Informasi Delivery',
                     style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1B1B1B)),
@@ -191,7 +191,7 @@ class UserOrderDetailScreen extends StatelessWidget {
                           'Rp ${(item['price'] * item['quantity']).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                           style: const TextStyle(
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF2D6A4F))),
+                              color: Color(0xFF6B7D1F))),
                       ]),
                     );
                   }),
@@ -226,7 +226,7 @@ class UserOrderDetailScreen extends StatelessWidget {
                         style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 18,
-                            color: Color(0xFF2D6A4F))),
+                            color: Color(0xFF6B7D1F))),
                     ],
                   ),
                 ],

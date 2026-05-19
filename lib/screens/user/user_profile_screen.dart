@@ -42,7 +42,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Nama berhasil diperbarui!'),
-          backgroundColor: Color(0xFF2D6A4F),
+          backgroundColor: Color(0xFF6B7D1F),
           behavior: SnackBarBehavior.floating,
         ));
       }
@@ -83,14 +83,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             expandedHeight: 220,
             pinned: true,
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFF2D6A4F),
+            backgroundColor: const Color(0xFF6B7D1F),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
+                    colors: [Color(0xFF1B4332), Color(0xFF6B7D1F)],
                   ),
                 ),
                 child: SafeArea(
@@ -258,11 +258,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ],
                     ),
                     child: Row(children: [
-                      _statItem('Total Order', '$totalOrders', '🛍️'),
+                      _statItem('Total Order', '$totalOrders', Icons.shopping_bag_outlined),
                       _divider(),
-                      _statItem('Selesai', '$completedOrders', '✅'),
+                      _statItem('Selesai', '$completedOrders', Icons.check_circle_outline_rounded),
                       _divider(),
-                      _statItem('Aktif', '$pendingOrders', '⏳'),
+                      _statItem('Aktif', '$pendingOrders', Icons.history_rounded),
                     ]),
                   ),
                   const SizedBox(height: 12),
@@ -272,13 +272,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF2D6A4F), Color(0xFF52B788)],
+                        colors: [Color(0xFF6B7D1F), Color(0xFFB7D64A)],
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(children: [
-                      const Text('💰',
-                          style: TextStyle(fontSize: 28)),
+                      const Icon(Icons.monetization_on_outlined,
+                          size: 28, color: Colors.white),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +310,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     icon: Icons.person_rounded,
                     label: 'Nama',
                     value: user?.name ?? '-',
-                    color: const Color(0xFF2D6A4F),
+                    color: const Color(0xFF6B7D1F),
                     onTap: () {
                       _nameController.text = user?.name ?? '';
                       setState(() => _isEditingName = true);
@@ -322,13 +322,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     icon: Icons.email_rounded,
                     label: 'Email',
                     value: user?.email ?? '-',
-                    color: const Color(0xFF52B788),
+                    color: const Color(0xFFB7D64A),
                   ),
                   _infoTile(
                     icon: Icons.verified_user_rounded,
                     label: 'Role',
                     value: 'Pelanggan Matchacih',
-                    color: const Color(0xFFB7E4C7),
+                    color: const Color(0xFFA9B388),
                   ),
 
                   const SizedBox(height: 20),
@@ -400,10 +400,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _statItem(String label, String value, String emoji) {
+  Widget _statItem(String label, String value, IconData icon) {
     return Expanded(
       child: Column(children: [
-        Text(emoji, style: const TextStyle(fontSize: 22)),
+        Icon(icon, size: 22, color: const Color(0xFF6B7D1F)),
         const SizedBox(height: 4),
         Text(value,
             style: const TextStyle(

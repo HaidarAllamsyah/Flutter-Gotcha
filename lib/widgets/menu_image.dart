@@ -23,12 +23,16 @@ class MenuImage extends StatelessWidget {
     this.borderRadius,
   });
 
-  String _emoji() {
+  IconData _categoryIcon() {
     switch (category) {
-      case 'drink': return '🍵';
-      case 'food': return '🍱';
-      case 'snack': return '🍰';
-      default: return '✨';
+      case 'drink':
+        return Icons.local_cafe_outlined;
+      case 'food':
+        return Icons.restaurant_outlined;
+      case 'snack':
+        return Icons.cake_outlined;
+      default:
+        return Icons.restaurant_menu_outlined;
     }
   }
 
@@ -40,13 +44,16 @@ class MenuImage extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFD8F3DC), Color(0xFF95D5B2)],
+          colors: [Color(0xFFF3F1E7), Color(0xFF95D5B2)],
         ),
         borderRadius: borderRadius,
       ),
       child: Center(
-        child: Text(_emoji(),
-            style: const TextStyle(fontSize: 48)),
+        child: Icon(
+          _categoryIcon(),
+          size: 48,
+          color: const Color(0xFF6B7D1F),
+        ),
       ),
     );
   }

@@ -7,7 +7,7 @@ class NotificationService {
   static void showStatusNotification({
     required String orderNumber,
     required String statusLabel,
-    required String statusEmoji,
+    required IconData statusIcon,
     required Color color,
   }) {
     final context = navigatorKey.currentContext;
@@ -30,8 +30,8 @@ class NotificationService {
               borderRadius: BorderRadius.circular(10),
             ),
             child:
-                Center(child: Text(statusEmoji,
-                    style: const TextStyle(fontSize: 20))),
+                Center(child: Icon(statusIcon,
+                    color: color, size: 20)),
           ),
           const SizedBox(width: 12),
           Expanded(

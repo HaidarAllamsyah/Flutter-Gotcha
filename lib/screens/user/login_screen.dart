@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen>
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
+                colors: [Color(0xFF1B4332), Color(0xFF6B7D1F)],
               ),
             ),
           ),
@@ -119,7 +119,8 @@ class _LoginScreenState extends State<LoginScreen>
                                   color: Colors.white.withOpacity(0.3)),
                             ),
                             child: const Center(
-                              child: Text('🍵', style: TextStyle(fontSize: 38)),
+                              child: Icon(Icons.local_cafe_outlined,
+                                  size: 38, color: Colors.white),
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -186,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 decoration: InputDecoration(
                                   labelText: 'Email',
                                   prefixIcon: const Icon(Icons.email_outlined,
-                                      color: Color(0xFF2D6A4F), size: 20),
+                                      color: Color(0xFF6B7D1F), size: 20),
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14)),
                                   filled: true,
@@ -207,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 decoration: InputDecoration(
                                   labelText: 'Password',
                                   prefixIcon: const Icon(Icons.lock_outlined,
-                                      color: Color(0xFF2D6A4F), size: 20),
+                                      color: Color(0xFF6B7D1F), size: 20),
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                         _obscurePassword
@@ -238,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 child: ElevatedButton(
                                   onPressed: isLoading ? null : _login,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2D6A4F),
+                                    backgroundColor: const Color(0xFF6B7D1F),
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
@@ -276,19 +277,20 @@ class _LoginScreenState extends State<LoginScreen>
                         decoration: BoxDecoration(
                           color: const Color(0xFFF8F9F4),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFB7E4C7)),
+                          border: Border.all(color: const Color(0xFFA9B388)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Row(children: [
-                              Text('🔑', style: TextStyle(fontSize: 14)),
+                              Icon(Icons.key_rounded,
+                                  size: 14, color: Color(0xFF6B7D1F)),
                               SizedBox(width: 6),
                               Text('Akun Demo',
                                   style: TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,
-                                      color: Color(0xFF2D6A4F))),
+                                      color: Color(0xFF6B7D1F))),
                               SizedBox(width: 4),
                               Text('(tap untuk isi otomatis)',
                                   style: TextStyle(
@@ -296,10 +298,10 @@ class _LoginScreenState extends State<LoginScreen>
                             ]),
                             const SizedBox(height: 10),
                             _demoTile('Admin', 'admin@resto.com', 'admin123',
-                                const Color(0xFF2D6A4F)),
+                                const Color(0xFF6B7D1F)),
                             const SizedBox(height: 8),
                             _demoTile('User', 'user@resto.com', 'user123',
-                                const Color(0xFF52B788)),
+                                const Color(0xFFB7D64A)),
                           ],
                         ),
                       ),

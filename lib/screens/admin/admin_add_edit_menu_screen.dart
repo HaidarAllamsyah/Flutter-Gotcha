@@ -30,9 +30,9 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
   bool get isEdit => widget.menu != null;
 
   final List<Map<String, String>> _categories = [
-    {'value': 'drink', 'label': '🍵 Minuman'},
-    {'value': 'food', 'label': '🍱 Makanan'},
-    {'value': 'snack', 'label': '🍰 Snack'},
+    {'value': 'drink', 'label': 'Minuman'},
+    {'value': 'food', 'label': 'Makanan'},
+    {'value': 'snack', 'label': 'Snack'},
   ];
 
   @override
@@ -103,7 +103,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
           content: Text(isEdit
               ? '${menu.name} berhasil diperbarui!'
               : '${menu.name} berhasil ditambahkan!'),
-          backgroundColor: const Color(0xFF2D6A4F),
+          backgroundColor: const Color(0xFF6B7D1F),
           behavior: SnackBarBehavior.floating,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -173,7 +173,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
             width: double.infinity,
             height: double.infinity,
             placeholder: (_, __) => const Center(
-                child: CircularProgressIndicator(color: Color(0xFF2D6A4F))),
+                child: CircularProgressIndicator(color: Color(0xFF6B7D1F))),
             errorWidget: (_, __, ___) => const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -224,11 +224,11 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: const Color(0xFF2D6A4F).withOpacity(0.1),
+              color: const Color(0xFF6B7D1F).withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.add_photo_alternate_rounded,
-                size: 28, color: Color(0xFF2D6A4F)),
+                size: 28, color: Color(0xFF6B7D1F)),
           ),
           const SizedBox(height: 10),
           const Text('Tap untuk upload foto dari galeri',
@@ -245,7 +245,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9F4),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D6A4F),
+        backgroundColor: const Color(0xFF6B7D1F),
         foregroundColor: Colors.white,
         title: Text(isEdit ? 'Edit Menu' : 'Tambah Menu',
             style: const TextStyle(fontWeight: FontWeight.w800)),
@@ -265,7 +265,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                      color: const Color(0xFF2D6A4F).withOpacity(0.3),
+                      color: const Color(0xFF6B7D1F).withOpacity(0.3),
                       width: 1.5),
                   boxShadow: [
                     BoxShadow(
@@ -338,7 +338,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     prefixIcon: Icon(Icons.category_rounded,
-                        color: Color(0xFF2D6A4F), size: 20),
+                        color: Color(0xFF6B7D1F), size: 20),
                     labelText: 'Kategori',
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -387,7 +387,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
                     labelText: 'Deskripsi',
                     hintText: 'Deskripsikan menu ini...',
                     prefixIcon: Icon(Icons.description_rounded,
-                        color: Color(0xFF2D6A4F), size: 20),
+                        color: Color(0xFF6B7D1F), size: 20),
                     border: InputBorder.none,
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 0, vertical: 14),
@@ -402,7 +402,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2D6A4F),
+                    backgroundColor: const Color(0xFF6B7D1F),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
@@ -455,7 +455,7 @@ class _AdminAddEditMenuScreenState extends State<AdminAddEditMenuScreen> {
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
-          prefixIcon: Icon(icon, color: const Color(0xFF2D6A4F), size: 20),
+          prefixIcon: Icon(icon, color: const Color(0xFF6B7D1F), size: 20),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 0, vertical: 14),

@@ -18,12 +18,12 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
 
   final List<Map<String, String>> _filters = [
     {'value': 'all', 'label': 'Semua'},
-    {'value': 'pending', 'label': '⏳ Pending'},
-    {'value': 'processing', 'label': '👨‍🍳 Diproses'},
-    {'value': 'ready', 'label': '✅ Siap'},
-    {'value': 'on_delivery', 'label': '🛵 Dikirim'},
-    {'value': 'completed', 'label': '🎉 Selesai'},
-    {'value': 'cancelled', 'label': '❌ Batal'},
+    {'value': 'pending', 'label': 'Pending'},
+    {'value': 'processing', 'label': 'Diproses'},
+    {'value': 'ready', 'label': 'Siap'},
+    {'value': 'on_delivery', 'label': 'Dikirim'},
+    {'value': 'completed', 'label': 'Selesai'},
+    {'value': 'cancelled', 'label': 'Batal'},
   ];
 
   @override
@@ -71,7 +71,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
           SliverAppBar(
             pinned: true,
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFF2D6A4F),
+            backgroundColor: const Color(0xFF6B7D1F),
             title: Row(children: [
               const Text('Pesanan Masuk',
                   style: TextStyle(
@@ -120,12 +120,12 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                       width: 90,
                       height: 90,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD8F3DC),
+                        color: const Color(0xFFF3F1E7),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: const Center(
-                          child: Text('🧾',
-                              style: TextStyle(fontSize: 44))),
+                          child: Icon(Icons.receipt_long_outlined,
+                              size: 44, color: Color(0xFF6B7D1F))),
                     ),
                     const SizedBox(height: 14),
                     const Text('Tidak ada pesanan',
@@ -187,9 +187,8 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                       top: Radius.circular(16)),
                             ),
                             child: Row(children: [
-                              Text(order.statusEmoji,
-                                  style: const TextStyle(
-                                      fontSize: 16)),
+                              Icon(order.statusIcon,
+                                  color: color, size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Column(
@@ -221,8 +220,8 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                         ),
                                         child: Text(
                                           order.isPickup
-                                              ? '🏃 Pick Up'
-                                              : '🛵 Delivery',
+                                              ? 'Pick Up'
+                                              : 'Delivery',
                                           style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w700,
@@ -334,7 +333,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w800,
                                           fontSize: 14,
-                                          color: Color(0xFF2D6A4F)),
+                                          color: Color(0xFF6B7D1F)),
                                     ),
                                     const SizedBox(height: 4),
                                     const Icon(
@@ -422,12 +421,19 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                       color: color.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      '${order.statusEmoji} ${order.statusLabel}',
-                      style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(order.statusIcon, color: color, size: 14),
+                        const SizedBox(width: 6),
+                        Text(
+                          order.statusLabel,
+                          style: TextStyle(
+                              color: color,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -449,8 +455,14 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                   ),
                 ),
                 child: Row(children: [
-                  Text(order.isPickup ? '🏃' : '🛵',
-                      style: const TextStyle(fontSize: 22)),
+                  Icon(
+                      order.isPickup
+                          ? Icons.directions_walk_rounded
+                          : Icons.delivery_dining_rounded,
+                      color: order.isPickup
+                          ? const Color(0xFF4895EF)
+                          : const Color(0xFF9B5DE5),
+                      size: 22),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -491,7 +503,7 @@ class _AdminOrderDetailSheet extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Pelanggan
-              _infoRow('👤', 'Pelanggan', order.userName),
+              _infoRow(Icons.person_outline_rounded, 'Pelanggan', order.userName),
 
               if (order.note.isNotEmpty) ...[
                 const SizedBox(height: 8),
@@ -507,8 +519,8 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('📝',
-                          style: TextStyle(fontSize: 16)),
+                      const Icon(Icons.note_alt_outlined,
+                          color: Color(0xFFF4A261), size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                           child: Text(order.note,
@@ -545,8 +557,8 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: Row(children: [
-                    const Text('🍵',
-                        style: TextStyle(fontSize: 18)),
+                    const Icon(Icons.local_cafe_outlined,
+                        color: Color(0xFF6B7D1F), size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -570,7 +582,7 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                       'Rp ${(item['price'] * item['quantity']).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                       style: const TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF2D6A4F)),
+                          color: Color(0xFF6B7D1F)),
                     ),
                   ]),
                 );
@@ -620,7 +632,7 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                     style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 18,
-                        color: Color(0xFF2D6A4F))),
+                        color: Color(0xFF6B7D1F))),
                 ],
               ),
 
@@ -633,7 +645,7 @@ class _AdminOrderDetailSheet extends StatelessWidget {
                   height: 52,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2D6A4F),
+                      backgroundColor: const Color(0xFF6B7D1F),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
@@ -662,7 +674,7 @@ class _AdminOrderDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(String emoji, String label, String value) {
+  Widget _infoRow(IconData icon, String label, String value) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -670,7 +682,7 @@ class _AdminOrderDetailSheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [
-        Text(emoji, style: const TextStyle(fontSize: 20)),
+        Icon(icon, color: const Color(0xFF6B7D1F), size: 20),
         const SizedBox(width: 10),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label,

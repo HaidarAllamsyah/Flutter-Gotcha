@@ -80,7 +80,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF2D6A4F).withOpacity(0.1)
+              ? const Color(0xFF6B7D1F).withOpacity(0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -89,7 +89,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
           children: [
             Icon(isActive ? activeIcon : inactiveIcon,
                 color: isActive
-                    ? const Color(0xFF2D6A4F)
+                    ? const Color(0xFF6B7D1F)
                     : const Color(0xFF9E9E9E),
                 size: 24),
             const SizedBox(height: 2),
@@ -99,7 +99,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
                     fontWeight:
                         isActive ? FontWeight.w700 : FontWeight.w500,
                     color: isActive
-                        ? const Color(0xFF2D6A4F)
+                        ? const Color(0xFF6B7D1F)
                         : const Color(0xFF9E9E9E))),
           ],
         ),
@@ -117,7 +117,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF2D6A4F).withOpacity(0.1)
+              ? const Color(0xFF6B7D1F).withOpacity(0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -127,7 +127,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
             Stack(children: [
               Icon(isActive ? activeIcon : inactiveIcon,
                   color: isActive
-                      ? const Color(0xFF2D6A4F)
+                      ? const Color(0xFF6B7D1F)
                       : const Color(0xFF9E9E9E),
                   size: 24),
               if (badge > 0)
@@ -158,7 +158,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
                     fontWeight:
                         isActive ? FontWeight.w700 : FontWeight.w500,
                     color: isActive
-                        ? const Color(0xFF2D6A4F)
+                        ? const Color(0xFF6B7D1F)
                         : const Color(0xFF9E9E9E))),
           ],
         ),

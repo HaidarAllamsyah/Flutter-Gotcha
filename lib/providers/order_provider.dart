@@ -39,7 +39,7 @@ class OrderProvider extends ChangeNotifier {
           NotificationService.showStatusNotification(
             orderNumber: order.orderId.substring(0, 6).toUpperCase(),
             statusLabel: order.statusLabel,
-            statusEmoji: order.statusEmoji,
+            statusIcon: order.statusIcon,
             color: Color(order.statusColorValue),
           );
         }

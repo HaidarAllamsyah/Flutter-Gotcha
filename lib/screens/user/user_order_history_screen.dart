@@ -5,7 +5,6 @@ import 'package:resto_app/utils/app_router.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import 'user_order_detail_screen.dart';
-import '../../utils/app_router.dart';
 
 class UserOrderHistoryScreen extends StatefulWidget {
   const UserOrderHistoryScreen({super.key});
@@ -22,12 +21,12 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
 
   final List<Map<String, String>> _filters = [
     {'value': 'all', 'label': 'Semua'},
-    {'value': 'pending', 'label': '⏳ Pending'},
-    {'value': 'processing', 'label': '👨‍🍳 Diproses'},
-    {'value': 'ready', 'label': '✅ Siap Ambil'},
-    {'value': 'on_delivery', 'label': '🛵 Dikirim'},
-    {'value': 'completed', 'label': '🎉 Selesai'},
-    {'value': 'cancelled', 'label': '❌ Batal'},
+    {'value': 'pending', 'label': 'Pending'},
+    {'value': 'processing', 'label': 'Diproses'},
+    {'value': 'ready', 'label': 'Siap Ambil'},
+    {'value': 'on_delivery', 'label': 'Dikirim'},
+    {'value': 'completed', 'label': 'Selesai'},
+    {'value': 'cancelled', 'label': 'Batal'},
   ];
 
   @override
@@ -64,7 +63,7 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
           SliverAppBar(
             pinned: true,
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFF2D6A4F),
+            backgroundColor: const Color(0xFF6B7D1F),
             title: const Text('Riwayat Pesanan',
                 style: TextStyle(
                     color: Colors.white,
@@ -95,11 +94,12 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD8F3DC),
+                        color: const Color(0xFFF3F1E7),
                         borderRadius: BorderRadius.circular(28),
                       ),
                       child: const Center(
-                        child: Text('🧾', style: TextStyle(fontSize: 48)),
+                        child: Icon(Icons.receipt_long_outlined,
+                            size: 48, color: Color(0xFF6B7D1F)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -163,9 +163,8 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
                               ),
                               child: Row(
                                 children: [
-                                  Text(order.statusEmoji,
-                                      style:
-                                          const TextStyle(fontSize: 18)),
+                                  Icon(order.statusIcon,
+                                       color: color, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Column(
@@ -225,8 +224,8 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
                                         ),
                                         child: Text(
                                           order.isPickup
-                                              ? '🏃 Pick Up'
-                                              : '🛵 Delivery',
+                                              ? 'Pick Up'
+                                              : 'Delivery',
                                           style: TextStyle(
                                               fontSize: 9,
                                               fontWeight: FontWeight.w700,
@@ -309,7 +308,7 @@ class _UserOrderHistoryScreenState extends State<UserOrderHistoryScreen>
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w800,
                                         fontSize: 14,
-                                        color: Color(0xFF2D6A4F)),
+                                        color: Color(0xFF6B7D1F)),
                                   ),
                                 ],
                               ),

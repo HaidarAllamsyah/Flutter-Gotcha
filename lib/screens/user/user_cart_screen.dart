@@ -7,14 +7,14 @@ import '../../utils/app_router.dart';
 class UserCartScreen extends StatelessWidget {
   const UserCartScreen({super.key});
 
-  String _categoryEmoji(String name) {
+  IconData _categoryIcon(String name) {
     final n = name.toLowerCase();
     if (n.contains('latte') || n.contains('frappe') ||
         n.contains('matcha') || n.contains('milk') ||
-        n.contains('americano')) return '🍵';
+        n.contains('americano')) return Icons.local_cafe_outlined;
     if (n.contains('cake') || n.contains('pancake') ||
-        n.contains('ice cream')) return '🍰';
-    return '🍪';
+        n.contains('ice cream')) return Icons.cake_outlined;
+    return Icons.cookie_outlined;
   }
 
   @override
@@ -28,7 +28,7 @@ class UserCartScreen extends StatelessWidget {
           SliverAppBar(
             pinned: true,
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFF2D6A4F),
+            backgroundColor: const Color(0xFF6B7D1F),
             title: const Text('Keranjang',
                 style: TextStyle(
                     color: Colors.white,
@@ -82,12 +82,12 @@ class UserCartScreen extends StatelessWidget {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD8F3DC),
+                            color: const Color(0xFFF3F1E7),
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: const Center(
-                            child: Text('🛍️',
-                                style: TextStyle(fontSize: 48)),
+                            child: Icon(Icons.shopping_bag_outlined,
+                                size: 48, color: Color(0xFF6B7D1F)),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -147,18 +147,18 @@ class UserCartScreen extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
-                                        Color(0xFFD8F3DC),
-                                        Color(0xFFB7E4C7)
+                                        Color(0xFFF3F1E7),
+                                        Color(0xFFA9B388)
                                       ],
                                     ),
                                     borderRadius:
                                         BorderRadius.circular(14),
                                   ),
                                   child: Center(
-                                    child: Text(
-                                        _categoryEmoji(item.name),
-                                        style: const TextStyle(
-                                            fontSize: 26)),
+                                    child: Icon(
+                                        _categoryIcon(item.name),
+                                        size: 26,
+                                        color: const Color(0xFF6B7D1F)),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -184,7 +184,7 @@ class UserCartScreen extends StatelessWidget {
                                                   horizontal: 6,
                                                   vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF2D6A4F)
+                                            color: const Color(0xFF6B7D1F)
                                                 .withOpacity(0.08),
                                             borderRadius:
                                                 BorderRadius.circular(6),
@@ -193,7 +193,7 @@ class UserCartScreen extends StatelessWidget {
                                             item.customizationLabel,
                                             style: const TextStyle(
                                                 fontSize: 10,
-                                                color: Color(0xFF2D6A4F),
+                                                color: Color(0xFF6B7D1F),
                                                 fontWeight:
                                                     FontWeight.w600),
                                           ),
@@ -217,7 +217,7 @@ class UserCartScreen extends StatelessWidget {
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w800,
                                           fontSize: 13,
-                                          color: Color(0xFF2D6A4F)),
+                                          color: Color(0xFF6B7D1F)),
                                     ),
                                     const SizedBox(height: 6),
                                     Row(children: [
@@ -242,7 +242,7 @@ class UserCartScreen extends StatelessWidget {
                                         icon: Icons.add_rounded,
                                         onTap: () => cart.updateQuantity(
                                             i, item.quantity + 1),
-                                        color: const Color(0xFF2D6A4F),
+                                        color: const Color(0xFF6B7D1F),
                                       ),
                                     ]),
                                   ],
@@ -287,7 +287,7 @@ class UserCartScreen extends StatelessWidget {
                         style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF2D6A4F)),
+                            color: Color(0xFF6B7D1F)),
                       ),
                     ],
                   ),
@@ -297,7 +297,7 @@ class UserCartScreen extends StatelessWidget {
                       MaterialPageRoute(
                           builder: (_) => const UserCheckoutScreen())),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2D6A4F),
+                      backgroundColor: const Color(0xFF6B7D1F),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 28, vertical: 14),

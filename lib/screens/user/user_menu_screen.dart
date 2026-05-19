@@ -8,6 +8,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/menu_model.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../../widgets/menu_image.dart';
 import 'package:flutter/services.dart';
 
 class UserMenuScreen extends StatefulWidget {
@@ -32,33 +33,27 @@ class _UserMenuScreenState extends State<UserMenuScreen>
 
   final List<Map<String, dynamic>> _banners = [
     {
-      'title': 'Selamat Datang di Matchacih! 🍵',
+      'imagePath': 'assets/images/banner/banner_1.jpg',
+      'title': 'Selamat Datang di Matchacih!',
       'subtitle': 'Nikmati matcha premium dengan harga terjangkau',
-      'color1': const Color(0xFF1B4332),
-      'color2': const Color(0xFF2D6A4F),
-      'emoji': '🍵',
     },
     {
-      'title': 'New! Matcha Cloud ☁️',
+      'imagePath': 'assets/images/banner/banner_2.jpg',
+      'title': 'New! Matcha Cloud',
       'subtitle': 'Es krim vanilla + matcha = surga di mulut',
-      'color1': const Color(0xFF2D6A4F),
-      'color2': const Color(0xFF52B788),
-      'emoji': '☁️',
     },
     {
-      'title': 'Kustomisasi Matchamu ✨',
+      'imagePath': 'assets/images/banner/banner_3.jpg',
+      'title': 'Kustomisasi Matchamu',
       'subtitle': 'Pilih grade, kadar, gula, dan es sesuai selera',
-      'color1': const Color(0xFF52B788),
-      'color2': const Color(0xFF95D5B2),
-      'emoji': '✨',
     },
   ];
 
   final List<Map<String, String>> _categories = [
-    {'value': 'all', 'label': '✨ Semua'},
-    {'value': 'drink', 'label': '🍵 Minuman'},
-    {'value': 'food', 'label': '🍰 Makanan'},
-    {'value': 'snack', 'label': '🍪 Snack'},
+    {'value': 'all', 'label': 'Semua'},
+    {'value': 'drink', 'label': 'Minuman'},
+    {'value': 'food', 'label': 'Makanan'},
+    {'value': 'snack', 'label': 'Snack'},
   ];
 
   @override
@@ -110,12 +105,12 @@ class _UserMenuScreenState extends State<UserMenuScreen>
     );
   }
 
-  String _menuEmoji(String category) {
+  IconData _categoryIcon(String category) {
     switch (category) {
-      case 'drink': return '🍵';
-      case 'food': return '🍱';
-      case 'snack': return '🍰';
-      default: return '✨';
+      case 'drink': return Icons.local_cafe_outlined;
+      case 'food': return Icons.restaurant_outlined;
+      case 'snack': return Icons.cake_outlined;
+      default: return Icons.restaurant_menu_outlined;
     }
   }
 
@@ -129,32 +124,13 @@ class _UserMenuScreenState extends State<UserMenuScreen>
   }
 
   Widget _buildMenuImage(MenuModel menu, {BorderRadius? borderRadius}) {
-    Widget imageWidget;
-
-    if (menu.imageBase64.isNotEmpty) {
-      imageWidget = Image.memory(
-        Uri.parse(menu.imageBase64).data!.contentAsBytes(),
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-      );
-    } else if (menu.imageUrl.isNotEmpty) {
-      imageWidget = CachedNetworkImage(
-        imageUrl: menu.imageUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        placeholder: (_, __) => _imagePlaceholder(menu.category),
-        errorWidget: (_, __, ___) => _imagePlaceholder(menu.category),
-      );
-    } else {
-      imageWidget = _imagePlaceholder(menu.category);
-    }
-
-    if (borderRadius != null) {
-      return ClipRRect(borderRadius: borderRadius, child: imageWidget);
-    }
-    return imageWidget;
+    return MenuImage(
+      imageBase64: menu.imageBase64,
+      imageUrl: menu.imageUrl,
+      imagePath: menu.imagePath,
+      category: menu.category,
+      borderRadius: borderRadius,
+    );
   }
 
   Widget _imagePlaceholder(String category) {
@@ -163,12 +139,15 @@ class _UserMenuScreenState extends State<UserMenuScreen>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFD8F3DC), Color(0xFF95D5B2)],
+          colors: [Color(0xFFF3F1E7), Color(0xFF95D5B2)],
         ),
       ),
       child: Center(
-        child: Text(_menuEmoji(category),
-            style: const TextStyle(fontSize: 48)),
+        child: Icon(
+          _categoryIcon(category),
+          size: 48,
+          color: const Color(0xFF6B7D1F),
+        ),
       ),
     );
   }
@@ -189,7 +168,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
             expandedHeight: 130,
             floating: false,
             pinned: true,
-            backgroundColor: const Color(0xFF2D6A4F),
+            backgroundColor: const Color(0xFF6B7D1F),
             automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
@@ -197,7 +176,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
+                    colors: [Color(0xFF1B4332), Color(0xFF6B7D1F)],
                   ),
                 ),
                 child: SafeArea(
@@ -211,7 +190,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Halo, ${user?.name ?? 'Pelanggan'} 👋',
+                              'Halo, ${user?.name ?? 'Pelanggan'}',
                               style: const TextStyle(
                                   color: Colors.white70, fontSize: 13),
                             ),
@@ -298,7 +277,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                         hintStyle: const TextStyle(
                             color: Color(0xFF9E9E9E), fontSize: 14),
                         prefixIcon: const Icon(Icons.search_rounded,
-                            color: Color(0xFF2D6A4F), size: 22),
+                            color: Color(0xFF6B7D1F), size: 22),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.close_rounded,
@@ -329,65 +308,9 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                           itemCount: _banners.length,
                           itemBuilder: (_, i) {
                             final banner = _banners[i];
-                            return Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    banner['color1'] as Color,
-                                    banner['color2'] as Color,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Emoji bg besar
-                                  Positioned(
-                                    right: 16,
-                                    top: 0,
-                                    bottom: 0,
-                                    child: Center(
-                                      child: Text(
-                                        banner['emoji'] as String,
-                                        style: TextStyle(
-                                            fontSize: 64,
-                                            color: Colors.white
-                                                .withOpacity(0.18)),
-                                      ),
-                                    ),
-                                  ),
-                                  // Teks
-                                  Padding(
-                                    padding: const EdgeInsets.all(18),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          banner['title'] as String,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w800,
-                                              height: 1.3),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          banner['subtitle'] as String,
-                                          style: TextStyle(
-                                              color: Colors.white
-                                                  .withOpacity(0.85),
-                                              fontSize: 12),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            return Image.asset(
+                              banner['imagePath'] as String,
+                              fit: BoxFit.cover,
                             );
                           },
                         ),
@@ -431,18 +354,18 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF2D6A4F)
+                                  ? const Color(0xFF6B7D1F)
                                   : Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF2D6A4F)
+                                    ? const Color(0xFF6B7D1F)
                                     : const Color(0xFFE8EDE9),
                               ),
                               boxShadow: isSelected
                                   ? [
                                       BoxShadow(
-                                          color: const Color(0xFF2D6A4F)
+                                          color: const Color(0xFF6B7D1F)
                                               .withOpacity(0.3),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2))
@@ -493,7 +416,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('🍵', style: TextStyle(fontSize: 48)),
+                            Icon(Icons.restaurant_menu_outlined, size: 48, color: Color(0xFF9E9E9E)),
                             SizedBox(height: 12),
                             Text('Menu tidak ditemukan',
                                 style: TextStyle(
@@ -601,7 +524,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                           style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF2D6A4F))),
+                              color: Color(0xFF6B7D1F))),
                     ),
                   ),
                   // Badge custom (khusus minuman)
@@ -613,10 +536,10 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 3),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2D6A4F),
+                          color: const Color(0xFF6B7D1F),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text('✨ Custom',
+                        child: const Text('Custom',
                             style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
@@ -643,7 +566,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                   Text(
                     'Rp ${menu.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                     style: const TextStyle(
-                        color: Color(0xFF2D6A4F),
+                        color: Color(0xFF6B7D1F),
                         fontWeight: FontWeight.w700,
                         fontSize: 13),
                   ),
@@ -656,7 +579,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                       height: 34,
                       decoration: BoxDecoration(
                         color: menu.isAvailable
-                            ? const Color(0xFF2D6A4F)
+                            ? const Color(0xFF6B7D1F)
                             : const Color(0xFFE8EDE9),
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -664,7 +587,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                         child: Text(
                           menu.isAvailable
                               ? (menu.isDrink
-                                  ? '✨ Pilih & Custom'
+                                  ? 'Pilih & Custom'
                                   : '+ Keranjang')
                               : 'Habis',
                           style: TextStyle(
@@ -715,21 +638,21 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
       'label': 'Culinary',
       'desc': 'Rasa kuat & earthy',
       'extra': '+Rp 0',
-      'emoji': '🌿',
+      'icon': Icons.eco_outlined,
     },
     {
       'value': 'premium',
       'label': 'Premium',
       'desc': 'Seimbang & creamy',
       'extra': '+Rp 4.000',
-      'emoji': '⭐',
+      'icon': Icons.star_outline_rounded,
     },
     {
       'value': 'ceremonial',
       'label': 'Ceremonial',
       'desc': 'Lembut & autentik',
       'extra': '+Rp 8.000',
-      'emoji': '👑',
+      'icon': Icons.workspace_premium_outlined,
     },
   ];
 
@@ -766,12 +689,12 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
   double get _pricePerItem => widget.menu.price + _gradeExtra + _sugarExtra;
   double get _totalPrice => _pricePerItem * _qty;
 
-  String _menuEmoji(String category) {
+  IconData _categoryIcon(String category) {
     switch (category) {
-      case 'drink': return '🍵';
-      case 'food': return '🍱';
-      case 'snack': return '🍰';
-      default: return '✨';
+      case 'drink': return Icons.local_cafe_outlined;
+      case 'food': return Icons.restaurant_outlined;
+      case 'snack': return Icons.cake_outlined;
+      default: return Icons.restaurant_menu_outlined;
     }
   }
 
@@ -788,50 +711,22 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
 
   Widget _buildMenuImage() {
     final menu = widget.menu;
-    Widget imageWidget;
-
-    if (menu.imageBase64.isNotEmpty) {
-      imageWidget = ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.memory(
-          Uri.parse(menu.imageBase64).data!.contentAsBytes(),
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-        ),
-      );
-    } else if (menu.imageUrl.isNotEmpty) {
-      imageWidget = ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: CachedNetworkImage(
-          imageUrl: menu.imageUrl,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          placeholder: (_, __) => Center(
-              child: Text(_menuEmoji(menu.category),
-                  style: const TextStyle(fontSize: 70))),
-          errorWidget: (_, __, ___) => Center(
-              child: Text(_menuEmoji(menu.category),
-                  style: const TextStyle(fontSize: 70))),
-        ),
-      );
-    } else {
-      imageWidget = Center(
-          child: Text(_menuEmoji(menu.category),
-              style: const TextStyle(fontSize: 70)));
-    }
-
     return Container(
       height: 200,
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
-          colors: [Color(0xFFD8F3DC), Color(0xFF95D5B2)],
+          colors: [Color(0xFFF3F1E7), Color(0xFF95D5B2)],
         ),
       ),
-      child: imageWidget,
+      child: MenuImage(
+        imageBase64: menu.imageBase64,
+        imageUrl: menu.imageUrl,
+        imagePath: menu.imagePath,
+        category: menu.category,
+        borderRadius: BorderRadius.circular(20),
+      ),
     );
   }
 
@@ -888,7 +783,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: menu.isAvailable
-                                  ? const Color(0xFFD8F3DC)
+                                  ? const Color(0xFFF3F1E7)
                                   : const Color(0xFFFFE5E5),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -900,7 +795,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   color: menu.isAvailable
-                                      ? const Color(0xFF2D6A4F)
+                                      ? const Color(0xFF6B7D1F)
                                       : const Color(0xFFE63946)),
                             ),
                           ),
@@ -912,7 +807,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                         style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF2D6A4F)),
+                            color: Color(0xFF6B7D1F)),
                       ),
                       const SizedBox(height: 8),
                       Text(menu.description,
@@ -951,22 +846,26 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF2D6A4F)
+                                    ? const Color(0xFF6B7D1F)
                                         .withOpacity(0.06)
                                     : const Color(0xFFF8F9F4),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFF2D6A4F)
+                                      ? const Color(0xFF6B7D1F)
                                       : const Color(0xFFE8EDE9),
                                   width: isSelected ? 1.5 : 1,
                                 ),
                               ),
                               child: Row(children: [
-                                Text(grade['emoji'] as String,
-                                    style:
-                                        const TextStyle(fontSize: 22)),
-                                const SizedBox(width: 10),
+                                 Icon(
+                                   grade['icon'] as IconData,
+                                   color: isSelected
+                                       ? const Color(0xFF6B7D1F)
+                                       : const Color(0xFF9E9E9E),
+                                   size: 22,
+                                 ),
+                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -977,7 +876,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                               fontWeight: FontWeight.w700,
                                               fontSize: 13,
                                               color: isSelected
-                                                  ? const Color(0xFF2D6A4F)
+                                                  ? const Color(0xFF6B7D1F)
                                                   : const Color(
                                                       0xFF1B1B1B))),
                                       Text(grade['desc'] as String,
@@ -992,7 +891,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFF2D6A4F)
+                                        ? const Color(0xFF6B7D1F)
                                         : const Color(0xFFE8EDE9),
                                     borderRadius:
                                         BorderRadius.circular(6),
@@ -1008,7 +907,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 if (isSelected) ...[
                                   const SizedBox(width: 6),
                                   const Icon(Icons.check_circle_rounded,
-                                      color: Color(0xFF2D6A4F), size: 18),
+                                      color: Color(0xFF6B7D1F), size: 18),
                                 ],
                               ]),
                             ),
@@ -1031,7 +930,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF2D6A4F)
+                                color: const Color(0xFF6B7D1F)
                                     .withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -1040,23 +939,23 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF2D6A4F)),
+                                    color: Color(0xFF6B7D1F)),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 4),
                         Row(children: [
-                          const Text('🌿',
-                              style: TextStyle(fontSize: 14)),
+                          Icon(Icons.eco_outlined,
+                              size: 18, color: const Color(0xFF9E9E9E)),
                           Expanded(
                             child: SliderTheme(
                               data: SliderTheme.of(context).copyWith(
-                                activeTrackColor: const Color(0xFF2D6A4F),
+                                activeTrackColor: const Color(0xFF6B7D1F),
                                 inactiveTrackColor:
                                     const Color(0xFFE8EDE9),
-                                thumbColor: const Color(0xFF2D6A4F),
-                                overlayColor: const Color(0xFF2D6A4F)
+                                thumbColor: const Color(0xFF6B7D1F),
+                                overlayColor: const Color(0xFF6B7D1F)
                                     .withOpacity(0.15),
                                 trackHeight: 4,
                               ),
@@ -1070,8 +969,8 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                               ),
                             ),
                           ),
-                          const Text('🍵',
-                              style: TextStyle(fontSize: 14)),
+                          Icon(Icons.local_cafe_outlined,
+                              size: 18, color: const Color(0xFF9E9E9E)),
                         ]),
                         const Row(
                           mainAxisAlignment:
@@ -1098,14 +997,14 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 color: Color(0xFF1B1B1B))),
                         const SizedBox(height: 10),
                         Row(children: [
-                          _optionChip('🍃 Less', 'less', _sugarLevel,
+                          _optionChip('Less', 'less', _sugarLevel,
                               (v) => setState(() => _sugarLevel = v),
                               sub: 'Normal'),
                           const SizedBox(width: 8),
-                          _optionChip('🍬 Normal', 'normal', _sugarLevel,
+                          _optionChip('Normal', 'normal', _sugarLevel,
                               (v) => setState(() => _sugarLevel = v)),
                           const SizedBox(width: 8),
-                          _optionChip('🍭 Extra', 'extra', _sugarLevel,
+                          _optionChip('Extra', 'extra', _sugarLevel,
                               (v) => setState(() => _sugarLevel = v),
                               sub: '+Rp 2.000'),
                         ]),
@@ -1120,13 +1019,13 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                 color: Color(0xFF1B1B1B))),
                         const SizedBox(height: 10),
                         Row(children: [
-                          _optionChip('🌡️ Less', 'less', _iceLevel,
+                          _optionChip('Less', 'less', _iceLevel,
                               (v) => setState(() => _iceLevel = v)),
                           const SizedBox(width: 8),
-                          _optionChip('🧊 Normal', 'normal', _iceLevel,
+                          _optionChip('Normal', 'normal', _iceLevel,
                               (v) => setState(() => _iceLevel = v)),
                           const SizedBox(width: 8),
-                          _optionChip('❄️ Extra', 'extra', _iceLevel,
+                          _optionChip('Extra', 'extra', _iceLevel,
                               (v) => setState(() => _iceLevel = v)),
                         ]),
                       ],
@@ -1153,7 +1052,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                       ? () => setState(() => _qty--)
                                       : null,
                                   icon: const Icon(Icons.remove_rounded),
-                                  color: const Color(0xFF2D6A4F),
+                                  color: const Color(0xFF6B7D1F),
                                   iconSize: 18,
                                 ),
                                 Text('$_qty',
@@ -1165,7 +1064,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                   onPressed: () =>
                                       setState(() => _qty++),
                                   icon: const Icon(Icons.add_rounded),
-                                  color: const Color(0xFF2D6A4F),
+                                  color: const Color(0xFF6B7D1F),
                                   iconSize: 18,
                                 ),
                               ],
@@ -1192,7 +1091,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                           content: Text(
                                               '$_qty x ${menu.name} ditambahkan!'),
                                           backgroundColor:
-                                              const Color(0xFF2D6A4F),
+                                              const Color(0xFF6B7D1F),
                                           behavior:
                                               SnackBarBehavior.floating,
                                           shape: RoundedRectangleBorder(
@@ -1204,7 +1103,7 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2D6A4F),
+                                backgroundColor: const Color(0xFF6B7D1F),
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 14),
@@ -1251,12 +1150,12 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFF2D6A4F).withOpacity(0.08)
+                ? const Color(0xFF6B7D1F).withOpacity(0.08)
                 : const Color(0xFFF8F9F4),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFF2D6A4F)
+                  ? const Color(0xFF6B7D1F)
                   : const Color(0xFFE8EDE9),
               width: isSelected ? 1.5 : 1,
             ),
@@ -1269,14 +1168,14 @@ class _MenuDetailSheetState extends State<_MenuDetailSheet>
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: isSelected
-                          ? const Color(0xFF2D6A4F)
+                          ? const Color(0xFF6B7D1F)
                           : const Color(0xFF4A4A4A))),
               if (sub != null)
                 Text(sub,
                     style: TextStyle(
                         fontSize: 9,
                         color: isSelected
-                            ? const Color(0xFF2D6A4F)
+                            ? const Color(0xFF6B7D1F)
                             : const Color(0xFF9E9E9E))),
             ],
           ),

@@ -72,7 +72,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF2D6A4F).withOpacity(0.1)
+              ? const Color(0xFF6B7D1F).withOpacity(0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -81,7 +81,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           children: [
             Icon(isActive ? activeIcon : inactiveIcon,
                 color: isActive
-                    ? const Color(0xFF2D6A4F)
+                    ? const Color(0xFF6B7D1F)
                     : const Color(0xFF9E9E9E),
                 size: 24),
             const SizedBox(height: 2),
@@ -91,7 +91,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     fontWeight:
                         isActive ? FontWeight.w700 : FontWeight.w500,
                     color: isActive
-                        ? const Color(0xFF2D6A4F)
+                        ? const Color(0xFF6B7D1F)
                         : const Color(0xFF9E9E9E))),
           ],
         ),
@@ -109,7 +109,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF2D6A4F).withOpacity(0.1)
+              ? const Color(0xFF6B7D1F).withOpacity(0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -119,7 +119,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             Stack(children: [
               Icon(isActive ? activeIcon : inactiveIcon,
                   color: isActive
-                      ? const Color(0xFF2D6A4F)
+                      ? const Color(0xFF6B7D1F)
                       : const Color(0xFF9E9E9E),
                   size: 24),
               if (badge > 0)
@@ -149,7 +149,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                     fontWeight:
                         isActive ? FontWeight.w700 : FontWeight.w500,
                     color: isActive
-                        ? const Color(0xFF2D6A4F)
+                        ? const Color(0xFF6B7D1F)
                         : const Color(0xFF9E9E9E))),
           ],
         ),

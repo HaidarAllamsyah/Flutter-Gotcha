@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // ─── MATCHA COLOR PALETTE ───────────────────────────
-  static const Color primary = Color(0xFF2D6A4F); // Hijau tua matcha
-  static const Color secondary = Color(0xFF52B788); // Hijau segar
-  static const Color tertiary = Color(0xFFB7E4C7); // Hijau muda lembut
-  static const Color accent = Color(0xFFD8F3DC); // Hijau sangat muda
+  static const Color primary = Color(0xFF6B7D1F); // Hijau tua matcha
+  static const Color secondary = Color(0xFFB7D64A); // Hijau segar
+  static const Color tertiary = Color(0xFFA9B388); // Hijau muda lembut
+  static const Color accent = Color(0xFFF3F1E7); // Hijau sangat muda
   static const Color cream = Color(0xFFF8F4E3); // Krem hangat
   static const Color brown = Color(0xFF6B4F3A); // Coklat matcha
   static const Color error = Color(0xFFE63946);
   static const Color warning = Color(0xFFF4A261);
-  static const Color success = Color(0xFF52B788);
+  static const Color success = Color(0xFFB7D64A);
   static const Color bgLight = Color(0xFFF8F9F4); // Background utama
   static const Color bgCard = Color(0xFFFFFFFF);
   static const Color textDark = Color(0xFF1B1B1B);

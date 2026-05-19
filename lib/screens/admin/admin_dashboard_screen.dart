@@ -31,14 +31,14 @@ class AdminDashboardScreen extends StatelessWidget {
             expandedHeight: 140,
             pinned: true,
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFF2D6A4F),
+            backgroundColor: const Color(0xFF6B7D1F),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
+                    colors: [Color(0xFF1B4332), Color(0xFF6B7D1F)],
                   ),
                 ),
                 child: SafeArea(
@@ -69,7 +69,8 @@ class AdminDashboardScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Row(children: [
-                                Text('🍵', style: TextStyle(fontSize: 12)),
+                                Icon(Icons.local_cafe_outlined,
+                                    color: Colors.white70, size: 12),
                                 SizedBox(width: 4),
                                 Text('Matchacih Admin',
                                     style: TextStyle(
@@ -148,12 +149,12 @@ class AdminDashboardScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF2D6A4F), Color(0xFF52B788)],
+                        colors: [Color(0xFF6B7D1F), Color(0xFFB7D64A)],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                            color: const Color(0xFF2D6A4F).withOpacity(0.3),
+                            color: const Color(0xFF6B7D1F).withOpacity(0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6))
                       ],
@@ -193,13 +194,13 @@ class AdminDashboardScreen extends StatelessWidget {
                     childAspectRatio: 1.5,
                     children: [
                       _metricCard('Total Menu', menus.length.toString(),
-                          '🍵', const Color(0xFF2D6A4F)),
+                          Icons.restaurant_menu_outlined, const Color(0xFF6B7D1F)),
                       _metricCard('Pending', pendingOrders.toString(),
-                          '⏳', const Color(0xFFF4A261)),
+                          Icons.hourglass_empty_rounded, const Color(0xFFF4A261)),
                       _metricCard('Diproses', processedOrders.toString(),
-                          '👨‍🍳', const Color(0xFF4895EF)),
+                          Icons.soup_kitchen_outlined, const Color(0xFF4895EF)),
                       _metricCard('Selesai', completedOrders.toString(),
-                          '✅', const Color(0xFF52B788)),
+                          Icons.check_circle_outline_rounded, const Color(0xFFB7D64A)),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -228,9 +229,10 @@ class AdminDashboardScreen extends StatelessWidget {
                           ),
                           child: const Center(
                             child: Column(children: [
-                              Text('🧾', style: TextStyle(fontSize: 40)),
-                              SizedBox(height: 8),
-                              Text('Belum ada pesanan',
+                              const Icon(Icons.receipt_long_outlined,
+                                  size: 40, color: Color(0xFF6B7D1F)),
+                              const SizedBox(height: 8),
+                              const Text('Belum ada pesanan',
                                   style: TextStyle(
                                       color: Color(0xFF9E9E9E),
                                       fontSize: 14)),
@@ -239,30 +241,7 @@ class AdminDashboardScreen extends StatelessWidget {
                         )
                       : Column(
                           children: orders.take(5).map((order) {
-                            Color statusColor;
-                            String statusLabel;
-                            String statusEmoji;
-                            switch (order.status) {
-                              case 'pending':
-                                statusColor = const Color(0xFFF4A261);
-                                statusLabel = 'Pending';
-                                statusEmoji = '⏳';
-                                break;
-                              case 'processed':
-                                statusColor = const Color(0xFF4895EF);
-                                statusLabel = 'Diproses';
-                                statusEmoji = '👨‍🍳';
-                                break;
-                              case 'completed':
-                                statusColor = const Color(0xFF52B788);
-                                statusLabel = 'Selesai';
-                                statusEmoji = '✅';
-                                break;
-                              default:
-                                statusColor = const Color(0xFFE63946);
-                                statusLabel = 'Dibatalkan';
-                                statusEmoji = '❌';
-                            }
+                            final statusColor = Color(order.statusColorValue);
                             return Container(
                               margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.all(14),
@@ -277,8 +256,8 @@ class AdminDashboardScreen extends StatelessWidget {
                                 ],
                               ),
                               child: Row(children: [
-                                Text(statusEmoji,
-                                    style: const TextStyle(fontSize: 24)),
+                                Icon(order.statusIcon,
+                                    color: statusColor, size: 24),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
@@ -313,7 +292,7 @@ class AdminDashboardScreen extends StatelessWidget {
                                     color: statusColor.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Text(statusLabel,
+                                  child: Text(order.statusLabel,
                                       style: TextStyle(
                                           color: statusColor,
                                           fontSize: 11,
@@ -334,7 +313,7 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _metricCard(
-      String label, String value, String emoji, Color color) {
+      String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -351,7 +330,7 @@ class AdminDashboardScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
+          Icon(icon, color: color, size: 24),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

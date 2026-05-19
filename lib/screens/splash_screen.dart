@@ -137,7 +137,7 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1B4332), Color(0xFF2D6A4F)],
+            colors: [Color(0xFF1B4332), Color(0xFF6B7D1F)],
           ),
         ),
         child: SafeArea(
@@ -169,8 +169,8 @@ class _SplashScreenState extends State<SplashScreen>
                         ],
                       ),
                       child: const Center(
-                        child: Text('🍵',
-                            style: TextStyle(fontSize: 52)),
+                        child: Icon(Icons.local_cafe_outlined,
+                            size: 52, color: Colors.white),
                       ),
                     ),
                   ),
@@ -201,7 +201,7 @@ class _SplashScreenState extends State<SplashScreen>
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
-                          'Sip the Green Goodness ✨',
+                          'Sip the Green Goodness',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white70,

@@ -52,7 +52,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           colorScheme: const ColorScheme.light(
-            primary: Color(0xFF2D6A4F),
+            primary: Color(0xFF6B7D1F),
           ),
         ),
         child: child!,
@@ -68,7 +68,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           colorScheme: const ColorScheme.light(
-            primary: Color(0xFF2D6A4F),
+            primary: Color(0xFF6B7D1F),
           ),
         ),
         child: child!,
@@ -136,9 +136,9 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(_orderType == 'pickup'
-            ? '✅ Pesanan dibuat! Ambil pada $_formattedPickupTime'
-            : '✅ Pesanan dibuat! Segera diantarkan'),
-        backgroundColor: const Color(0xFF2D6A4F),
+            ? 'Pesanan dibuat! Ambil pada $_formattedPickupTime'
+            : 'Pesanan dibuat! Segera diantarkan'),
+        backgroundColor: const Color(0xFF6B7D1F),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 3),
@@ -162,7 +162,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9F4),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2D6A4F),
+        backgroundColor: const Color(0xFF6B7D1F),
         foregroundColor: Colors.white,
         title: const Text('Konfirmasi Pesanan',
             style: TextStyle(fontWeight: FontWeight.w800)),
@@ -175,7 +175,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
           children: [
             // ── Ringkasan item ──────────────────────────────
             _sectionCard(
-              title: '🧾 Ringkasan Pesanan',
+              title: 'Ringkasan Pesanan',
               child: Column(
                 children: [
                   ...cart.items.asMap().entries.map((entry) {
@@ -204,7 +204,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                               'Rp ${item.totalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                               style: const TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF2D6A4F))),
+                                  color: Color(0xFF6B7D1F))),
                         ],
                       ),
                     );
@@ -229,7 +229,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                           style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 18,
-                              color: Color(0xFF2D6A4F))),
+                              color: Color(0xFF6B7D1F))),
                     ],
                   ),
                 ],
@@ -239,11 +239,11 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
 
             // ── Tipe pesanan ────────────────────────────────
             _sectionCard(
-              title: '🚚 Tipe Pesanan',
+              title: 'Tipe Pesanan',
               child: Row(children: [
                 Expanded(
                   child: _orderTypeBtn(
-                    icon: '🏃',
+                    icon: Icons.directions_walk_rounded,
                     label: 'Pick Up',
                     subtitle: 'Ambil sendiri',
                     value: 'pickup',
@@ -252,7 +252,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _orderTypeBtn(
-                    icon: '🛵',
+                    icon: Icons.delivery_dining_rounded,
                     label: 'Delivery',
                     subtitle: 'Diantar ke kamu',
                     value: 'delivery',
@@ -265,7 +265,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
             // ── Pickup: pilih waktu ─────────────────────────
             if (_orderType == 'pickup')
               _sectionCard(
-                title: '⏰ Waktu Pengambilan',
+                title: 'Waktu Pengambilan',
                 child: Column(children: [
                   _timeSelector(
                     icon: Icons.calendar_today_rounded,
@@ -284,16 +284,17 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2D6A4F).withOpacity(0.08),
+                      color: const Color(0xFF6B7D1F).withOpacity(0.08),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(children: [
-                      const Text('✅', style: TextStyle(fontSize: 16)),
+                      const Icon(Icons.check_circle_outline_rounded,
+                          size: 16, color: Color(0xFF6B7D1F)),
                       const SizedBox(width: 8),
                       Text(
                         'Siap diambil: $_formattedPickupTime',
                         style: const TextStyle(
-                            color: Color(0xFF2D6A4F),
+                            color: Color(0xFF6B7D1F),
                             fontWeight: FontWeight.w600,
                             fontSize: 13),
                       ),
@@ -305,7 +306,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
             // ── Delivery: alamat ────────────────────────────
             if (_orderType == 'delivery')
               _sectionCard(
-                title: '📍 Alamat Pengiriman',
+                title: 'Alamat Pengiriman',
                 child: Column(children: [
                   TextField(
                     controller: _addressController,
@@ -325,7 +326,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                              color: Color(0xFF2D6A4F), width: 1.5)),
+                              color: Color(0xFF6B7D1F), width: 1.5)),
                       filled: true,
                       fillColor: const Color(0xFFF8F9F4),
                     ),
@@ -344,7 +345,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '🛵 Estimasi $_estimatedKm km',
+                            'Estimasi $_estimatedKm km',
                             style: const TextStyle(
                                 fontSize: 13, color: Color(0xFF4A4A4A)),
                           ),
@@ -364,7 +365,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
 
             // ── Catatan ─────────────────────────────────────
             _sectionCard(
-              title: '📝 Catatan (opsional)',
+              title: 'Catatan (opsional)',
               child: TextField(
                 controller: _noteController,
                 maxLines: 2,
@@ -379,7 +380,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                          color: Color(0xFF2D6A4F), width: 1.5)),
+                          color: Color(0xFF6B7D1F), width: 1.5)),
                   filled: true,
                   fillColor: const Color(0xFFF8F9F4),
                 ),
@@ -398,7 +399,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                         _placeOrder();
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D6A4F),
+                  backgroundColor: const Color(0xFF6B7D1F),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
@@ -412,8 +413,8 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                             color: Colors.white, strokeWidth: 2.5))
                     : Text(
                         _orderType == 'pickup'
-                            ? '✅  Pesan & Pick Up'
-                            : '🛵  Pesan & Delivery',
+                            ? 'Pesan & Pick Up'
+                            : 'Pesan & Delivery',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w700)),
               ),
@@ -453,7 +454,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
   }
 
   Widget _orderTypeBtn({
-    required String icon,
+    required IconData icon,
     required String label,
     required String subtitle,
     required String value,
@@ -466,24 +467,28 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF2D6A4F).withOpacity(0.08)
+              ? const Color(0xFF6B7D1F).withOpacity(0.08)
               : const Color(0xFFF8F9F4),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color:
-                isSelected ? const Color(0xFF2D6A4F) : const Color(0xFFE8EDE9),
+                isSelected ? const Color(0xFF6B7D1F) : const Color(0xFFE8EDE9),
             width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Column(children: [
-          Text(icon, style: const TextStyle(fontSize: 28)),
+          Icon(icon,
+              size: 28,
+              color: isSelected
+                  ? const Color(0xFF6B7D1F)
+                  : const Color(0xFF9E9E9E)),
           const SizedBox(height: 6),
           Text(label,
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
                   color: isSelected
-                      ? const Color(0xFF2D6A4F)
+                      ? const Color(0xFF6B7D1F)
                       : const Color(0xFF1B1B1B))),
           Text(subtitle,
               style: const TextStyle(fontSize: 11, color: Color(0xFF9E9E9E))),
@@ -508,7 +513,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
           border: Border.all(color: const Color(0xFFE8EDE9)),
         ),
         child: Row(children: [
-          Icon(icon, color: const Color(0xFF2D6A4F), size: 20),
+          Icon(icon, color: const Color(0xFF6B7D1F), size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
