@@ -58,6 +58,7 @@ class OrderProvider extends ChangeNotifier {
     required double deliveryFee,
     required String note,
     required String orderType,
+    String paymentMethod = 'QRIS',
     String? pickupTime,
     String? deliveryAddress,
   }) async {
@@ -79,6 +80,7 @@ class OrderProvider extends ChangeNotifier {
         note: note,
         status: 'pending',
         orderType: orderType,
+        paymentMethod: paymentMethod,
         pickupTime: pickupTime,
         deliveryAddress: deliveryAddress,
         createdAt: DateTime.now(),

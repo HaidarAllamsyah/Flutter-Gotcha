@@ -504,6 +504,8 @@ class _AdminOrderDetailSheet extends StatelessWidget {
 
               // Pelanggan
               _infoRow(Icons.person_outline_rounded, 'Pelanggan', order.userName),
+              const SizedBox(height: 8),
+              _infoRow(Icons.qr_code_2_rounded, 'Pembayaran', order.paymentMethod),
 
               if (order.note.isNotEmpty) ...[
                 const SizedBox(height: 8),

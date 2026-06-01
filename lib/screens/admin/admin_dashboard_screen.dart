@@ -72,7 +72,7 @@ class AdminDashboardScreen extends StatelessWidget {
                                 Icon(Icons.local_cafe_outlined,
                                     color: Colors.white70, size: 12),
                                 SizedBox(width: 4),
-                                Text('Matchacih Admin',
+                                Text('Gotcha Admin',
                                     style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 11)),

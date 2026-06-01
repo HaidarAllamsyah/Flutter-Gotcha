@@ -184,7 +184,7 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: _textFade,
                     child: Column(children: [
                       const Text(
-                        'Matchacih',
+                        'Gotcha',
                         style: TextStyle(
                           fontSize: 38,
                           fontWeight: FontWeight.w800,
@@ -201,7 +201,7 @@ class _SplashScreenState extends State<SplashScreen>
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
-                          'Sip the Green Goodness',
+                          'Your Daily Matcha is Secured',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white70,

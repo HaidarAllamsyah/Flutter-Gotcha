@@ -29,6 +29,7 @@ class AuthService {
           'email': email,
           'name': name,
           'role': role,
+          'profileImageBase64': '',
           'createdAt': FieldValue.serverTimestamp(),
         });
         return UserModel(
@@ -36,6 +37,7 @@ class AuthService {
           email: email,
           name: name,
           role: role,
+          profileImageBase64: '',
         );
       }
 

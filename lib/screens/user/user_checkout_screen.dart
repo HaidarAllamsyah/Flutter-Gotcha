@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../models/cart_item_model.dart';
 import '../../providers/cart_provider.dart';
-import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
+import 'user_qris_payment_screen.dart';
 import 'package:flutter/services.dart';
+
+class _SavedDeliveryAddress {
+  final String label;
+  final String recipient;
+  final String address;
+  final double distanceKm;
+  final IconData icon;
+
+  const _SavedDeliveryAddress({
+    required this.label,
+    required this.recipient,
+    required this.address,
+    required this.distanceKm,
+    required this.icon,
+  });
+}
 
 class UserCheckoutScreen extends StatefulWidget {
   const UserCheckoutScreen({super.key});
@@ -15,8 +32,6 @@ class UserCheckoutScreen extends StatefulWidget {
 
 class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
   final _noteController = TextEditingController();
-  final _addressController = TextEditingController();
-  bool _isLoading = false;
 
   // Tipe pesanan
   String _orderType = 'pickup'; // 'pickup' atau 'delivery'
@@ -27,13 +42,38 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
 
   // Delivery
   double _deliveryFee = 0;
-  final double _feePerKm = 2000;
+  final double _baseDeliveryFee = 4000;
+  final double _feePerKm = 1800;
   double _estimatedKm = 0;
+  int? _selectedAddressIndex;
+
+  static const List<_SavedDeliveryAddress> _savedAddresses = [
+    _SavedDeliveryAddress(
+      label: 'Rumah',
+      recipient: 'Alamat Utama',
+      address: 'Jl. Melati No. 12, Sukolilo, Surabaya',
+      distanceKm: 1.8,
+      icon: Icons.home_rounded,
+    ),
+    _SavedDeliveryAddress(
+      label: 'Kampus',
+      recipient: 'Gedung Belajar',
+      address: 'Jl. Raya ITS, Keputih, Sukolilo, Surabaya',
+      distanceKm: 4.7,
+      icon: Icons.school_rounded,
+    ),
+    _SavedDeliveryAddress(
+      label: 'Kantor',
+      recipient: 'Office Tower',
+      address: 'Jl. Basuki Rahmat No. 88, Tegalsari, Surabaya',
+      distanceKm: 8.4,
+      icon: Icons.business_center_rounded,
+    ),
+  ];
 
   @override
   void dispose() {
     _noteController.dispose();
-    _addressController.dispose();
     super.dispose();
   }
 
@@ -77,80 +117,75 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
     if (picked != null) setState(() => _pickupTime = picked);
   }
 
-  void _calculateDeliveryFee(String address) {
-    // Simulasi perhitungan jarak berdasarkan panjang alamat
-    // Di produksi bisa pakai Google Maps Distance Matrix API
-    if (address.trim().length < 10) {
-      setState(() {
+  double _calculateDeliveryFee(double distanceKm) {
+    final rawFee = _baseDeliveryFee + (distanceKm * _feePerKm);
+    return ((rawFee / 500).ceil() * 500).toDouble();
+  }
+
+  void _selectOrderType(String value) {
+    setState(() {
+      _orderType = value;
+      if (value == 'delivery') {
+        _selectAddress(0, shouldSetState: false);
+      } else {
+        _selectedAddressIndex = null;
         _estimatedKm = 0;
         _deliveryFee = 0;
-      });
-      return;
-    }
-    // Simulasi: setiap 20 karakter = 1 km
-    final km = (address.trim().length / 20).clamp(1.0, 15.0);
-    setState(() {
-      _estimatedKm = double.parse(km.toStringAsFixed(1));
-      _deliveryFee = (km * _feePerKm).roundToDouble();
+      }
     });
   }
 
-  Future<void> _placeOrder() async {
-    // Validasi
-    if (_orderType == 'delivery' &&
-        _addressController.text.trim().length < 10) {
+  void _selectAddress(int index, {bool shouldSetState = true}) {
+    final address = _savedAddresses[index];
+    void updateSelection() {
+      _selectedAddressIndex = index;
+      _estimatedKm = address.distanceKm;
+      _deliveryFee = _calculateDeliveryFee(address.distanceKm);
+    }
+
+    if (shouldSetState) {
+      setState(updateSelection);
+    } else {
+      updateSelection();
+    }
+  }
+
+  void _openQrisPayment() {
+    if (_orderType == 'delivery' && _selectedAddressIndex == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Masukkan alamat lengkap untuk delivery'),
+        content: Text('Pilih alamat delivery terlebih dahulu'),
         backgroundColor: Color(0xFFE63946),
         behavior: SnackBarBehavior.floating,
       ));
       return;
     }
 
-    setState(() => _isLoading = true);
-
     final cart = context.read<CartProvider>();
     final auth = context.read<AuthProvider>();
-    final orderProvider = context.read<OrderProvider>();
 
     final pickupTimeStr = _orderType == 'pickup' ? _formattedPickupTime : null;
-    final deliveryAddr =
-        _orderType == 'delivery' ? _addressController.text.trim() : null;
+    final selectedAddress = _selectedAddressIndex == null
+        ? null
+        : _savedAddresses[_selectedAddressIndex!];
+    final deliveryAddr = _orderType == 'delivery' && selectedAddress != null
+        ? '${selectedAddress.label} - ${selectedAddress.address}'
+        : null;
 
-    final success = await orderProvider.placeOrder(
-      user: auth.currentUser!,
-      items: List.from(cart.items),
-      totalPrice: cart.totalPrice,
-      deliveryFee: _orderType == 'delivery' ? _deliveryFee : 0,
-      note: _noteController.text.trim(),
-      orderType: _orderType,
-      pickupTime: pickupTimeStr,
-      deliveryAddress: deliveryAddr,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UserQrisPaymentScreen(
+          user: auth.currentUser!,
+          items: List<CartItemModel>.from(cart.items),
+          totalPrice: cart.totalPrice,
+          deliveryFee: _orderType == 'delivery' ? _deliveryFee : 0,
+          note: _noteController.text.trim(),
+          orderType: _orderType,
+          pickupTime: pickupTimeStr,
+          deliveryAddress: deliveryAddr,
+        ),
+      ),
     );
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (success) {
-      await cart.clearCart();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_orderType == 'pickup'
-            ? 'Pesanan dibuat! Ambil pada $_formattedPickupTime'
-            : 'Pesanan dibuat! Segera diantarkan'),
-        backgroundColor: const Color(0xFF6B7D1F),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 3),
-      ));
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Gagal membuat pesanan. Coba lagi.'),
-        backgroundColor: Color(0xFFE63946),
-        behavior: SnackBarBehavior.floating,
-      ));
-    }
   }
 
   @override
@@ -213,7 +248,9 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                   _priceRow('Subtotal', cart.totalPrice),
                   if (_orderType == 'delivery') ...[
                     const SizedBox(height: 4),
-                    _priceRow('Ongkos Kirim ($_estimatedKm km)', _deliveryFee),
+                    _priceRow(
+                        'Ongkos Kirim (${_estimatedKm.toStringAsFixed(1)} km)',
+                        _deliveryFee),
                   ],
                   const Divider(height: 16),
                   Row(
@@ -284,7 +321,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6B7D1F).withOpacity(0.08),
+                      color: const Color(0xFF6B7D1F).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(children: [
@@ -308,44 +345,35 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
               _sectionCard(
                 title: 'Alamat Pengiriman',
                 child: Column(children: [
-                  TextField(
-                    controller: _addressController,
-                    maxLines: 3,
-                    onChanged: _calculateDeliveryFee,
-                    decoration: InputDecoration(
-                      hintText:
-                          'Masukkan alamat lengkap...\nContoh: Jl. Matcha No. 17, Surabaya',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE8EDE9))),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              const BorderSide(color: Color(0xFFE8EDE9))),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF6B7D1F), width: 1.5)),
-                      filled: true,
-                      fillColor: const Color(0xFFF8F9F4),
-                    ),
-                  ),
+                  ..._savedAddresses.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final address = entry.value;
+                    return Padding(
+                      padding: EdgeInsets.only(
+                          bottom: index == _savedAddresses.length - 1 ? 0 : 10),
+                      child: _savedAddressTile(
+                        address: address,
+                        isSelected: _selectedAddressIndex == index,
+                        onTap: () => _selectAddress(index),
+                      ),
+                    );
+                  }),
                   if (_deliveryFee > 0) ...[
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF4A261).withOpacity(0.1),
+                        color: const Color(0xFFF4A261).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                            color: const Color(0xFFF4A261).withOpacity(0.3)),
+                            color:
+                                const Color(0xFFF4A261).withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Estimasi $_estimatedKm km',
+                            'Estimasi ${_estimatedKm.toStringAsFixed(1)} km',
                             style: const TextStyle(
                                 fontSize: 13, color: Color(0xFF4A4A4A)),
                           ),
@@ -386,18 +414,22 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 14),
+
+            _sectionCard(
+              title: 'Metode Pembayaran',
+              child: _paymentMethodTile(),
+            ),
             const SizedBox(height: 24),
 
             // ── Tombol pesan ────────────────────────────────
             SizedBox(
               height: 54,
               child: ElevatedButton(
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        HapticFeedback.heavyImpact();
-                        _placeOrder();
-                      },
+                onPressed: () {
+                  HapticFeedback.heavyImpact();
+                  _openQrisPayment();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B7D1F),
                   foregroundColor: Colors.white,
@@ -405,18 +437,9 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
                       borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2.5))
-                    : Text(
-                        _orderType == 'pickup'
-                            ? 'Pesan & Pick Up'
-                            : 'Pesan & Delivery',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700)),
+                child: const Text('Bayar dengan QRIS',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               ),
             ),
           ],
@@ -433,7 +456,7 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2))
         ],
@@ -461,13 +484,13 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
   }) {
     final isSelected = _orderType == value;
     return GestureDetector(
-      onTap: () => setState(() => _orderType = value),
+      onTap: () => _selectOrderType(value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF6B7D1F).withOpacity(0.08)
+              ? const Color(0xFF6B7D1F).withValues(alpha: 0.08)
               : const Color(0xFFF8F9F4),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -493,6 +516,109 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
           Text(subtitle,
               style: const TextStyle(fontSize: 11, color: Color(0xFF9E9E9E))),
         ]),
+      ),
+    );
+  }
+
+  Widget _savedAddressTile({
+    required _SavedDeliveryAddress address,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final fee = _calculateDeliveryFee(address.distanceKm);
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF6B7D1F).withValues(alpha: 0.08)
+              : const Color(0xFFF8F9F4),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color:
+                isSelected ? const Color(0xFF6B7D1F) : const Color(0xFFE8EDE9),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF6B7D1F)
+                    : const Color(0xFFE8EDE9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                address.icon,
+                color: isSelected ? Colors.white : const Color(0xFF6B7D1F),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          address.label,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1B1B1B)),
+                        ),
+                      ),
+                      Text(
+                        '${address.distanceKm.toStringAsFixed(1)} km',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF6B7D1F)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    address.recipient,
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    address.address,
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFF4A4A4A)),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Ongkir ${_formatCurrency(fee)}',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFF4A261)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
+              color: isSelected
+                  ? const Color(0xFF6B7D1F)
+                  : const Color(0xFF9E9E9E),
+              size: 22,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -535,17 +661,49 @@ class _UserCheckoutScreenState extends State<UserCheckoutScreen> {
     );
   }
 
+  Widget _paymentMethodTile() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF6B7D1F).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF6B7D1F), width: 1.5),
+      ),
+      child: const Row(children: [
+        Icon(Icons.qr_code_2_rounded, color: Color(0xFF6B7D1F), size: 28),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('QRIS',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w800, color: Color(0xFF1B1B1B))),
+              SizedBox(height: 2),
+              Text('Scan barcode lalu konfirmasi pembayaran',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7D1F))),
+            ],
+          ),
+        ),
+        Icon(Icons.check_circle_rounded, color: Color(0xFF6B7D1F)),
+      ]),
+    );
+  }
+
   Widget _priceRow(String label, double amount) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
             style: const TextStyle(fontSize: 13, color: Color(0xFF9E9E9E))),
-        Text(
-            'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+        Text(_formatCurrency(amount),
             style: const TextStyle(
                 fontWeight: FontWeight.w600, color: Color(0xFF4A4A4A))),
       ],
     );
+  }
+
+  String _formatCurrency(double amount) {
+    return 'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
   }
 }

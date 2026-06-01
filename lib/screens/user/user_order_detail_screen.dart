@@ -120,6 +120,8 @@ class UserOrderDetailScreen extends StatelessWidget {
                         'Rp ${order.deliveryFee.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                       ),
                   ],
+                  _detailRow(Icons.qr_code_2_rounded, 'Pembayaran',
+                      order.paymentMethod),
                 ],
               ),
             ),

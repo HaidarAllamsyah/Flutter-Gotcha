@@ -10,6 +10,7 @@ class OrderModel {
   final String note;
   String status;
   final String orderType;
+  final String paymentMethod;
   final String? pickupTime;
   final String? deliveryAddress;
   final DateTime createdAt;
@@ -24,6 +25,7 @@ class OrderModel {
     required this.note,
     required this.status,
     required this.orderType,
+    this.paymentMethod = 'QRIS',
     this.pickupTime,
     this.deliveryAddress,
     required this.createdAt,
@@ -32,16 +34,17 @@ class OrderModel {
   factory OrderModel.fromMap(Map<String, dynamic> map, String id) {
     return OrderModel(
       orderId: id,
-      userId: map['userId'] ?? '',
-      userName: map['userName'] ?? '',
+      userId: (map['userId'] ?? '').toString(),
+      userName: (map['userName'] ?? '').toString(),
       items: List<Map<String, dynamic>>.from(map['items'] ?? []),
       totalPrice: (map['totalPrice'] ?? 0).toDouble(),
       deliveryFee: (map['deliveryFee'] ?? 0).toDouble(),
-      note: map['note'] ?? '',
-      status: map['status'] ?? 'pending',
-      orderType: map['orderType'] ?? 'pickup',
-      pickupTime: map['pickupTime'],
-      deliveryAddress: map['deliveryAddress'],
+      note: (map['note'] ?? '').toString(),
+      status: (map['status'] ?? 'pending').toString(),
+      orderType: (map['orderType'] ?? 'pickup').toString(),
+      paymentMethod: (map['paymentMethod'] ?? 'QRIS').toString(),
+      pickupTime: map['pickupTime']?.toString(),
+      deliveryAddress: map['deliveryAddress']?.toString(),
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] as dynamic).toDate()
           : DateTime.now(),
@@ -58,6 +61,7 @@ class OrderModel {
       'note': note,
       'status': status,
       'orderType': orderType,
+      'paymentMethod': paymentMethod,
       'pickupTime': pickupTime,
       'deliveryAddress': deliveryAddress,
       'createdAt': createdAt,

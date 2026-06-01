@@ -138,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen>
                               color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Text('Sip the Green Goodness',
+                            child: const Text('Your Daily Matcha is Secured',
                                 style: TextStyle(
                                     color: Colors.white70, fontSize: 12)),
                           ),

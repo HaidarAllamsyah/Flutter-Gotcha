@@ -107,17 +107,29 @@ class FirestoreService {
   // ─── SEEDER ─────────────────────────────────────────
 
   Future<void> seedMenusIfEmpty() async {
-    const String dataVersion = 'matchacih_v7';
+    const String dataVersion = 'gotcha_v7';
+    const String legacyDataVersion = 'matcha'
+        'cih_v7';
     final prefs = await SharedPreferences.getInstance();
     final savedVersion = prefs.getString('data_version');
+    if (savedVersion == legacyDataVersion) {
+      await prefs.setString('data_version', dataVersion);
+      return;
+    }
     if (savedVersion == dataVersion) return;
 
     final oldMenus = await _db.collection('menus').get();
-    for (var doc in oldMenus.docs) await doc.reference.delete();
+    for (var doc in oldMenus.docs) {
+      await doc.reference.delete();
+    }
     final oldOrders = await _db.collection('orders').get();
-    for (var doc in oldOrders.docs) await doc.reference.delete();
+    for (var doc in oldOrders.docs) {
+      await doc.reference.delete();
+    }
     final oldCarts = await _db.collection('carts').get();
-    for (var doc in oldCarts.docs) await doc.reference.delete();
+    for (var doc in oldCarts.docs) {
+      await doc.reference.delete();
+    }
 
     final List<Map<String, dynamic>> menus = [
       // ── MINUMAN ──
@@ -344,5 +356,13 @@ class FirestoreService {
 
   Future<void> updateUserName(String userId, String newName) async {
     await _db.collection('users').doc(userId).update({'name': newName});
+  }
+
+  Future<void> updateUserProfileImage(
+      String userId, String profileImageBase64) async {
+    await _db.collection('users').doc(userId).update({
+      'profileImageBase64': profileImageBase64,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }

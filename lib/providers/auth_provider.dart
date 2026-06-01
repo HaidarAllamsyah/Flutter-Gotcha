@@ -78,10 +78,12 @@ class AuthProvider extends ChangeNotifier {
     if (error.contains('user-not-found')) return 'Email tidak ditemukan.';
     if (error.contains('wrong-password')) return 'Password salah.';
     if (error.contains('invalid-email')) return 'Format email tidak valid.';
-    if (error.contains('too-many-requests'))
+    if (error.contains('too-many-requests')) {
       return 'Terlalu banyak percobaan. Coba lagi nanti.';
-    if (error.contains('invalid-credential'))
+    }
+    if (error.contains('invalid-credential')) {
       return 'Email atau password salah.';
+    }
     return 'Terjadi kesalahan. Coba lagi.';
   }
 }

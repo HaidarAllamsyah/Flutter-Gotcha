@@ -34,7 +34,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
   final List<Map<String, dynamic>> _banners = [
     {
       'imagePath': 'assets/images/banner/banner_1.jpg',
-      'title': 'Selamat Datang di Matchacih!',
+      'title': 'Selamat Datang di Gotcha!',
       'subtitle': 'Nikmati matcha premium dengan harga terjangkau',
     },
     {
@@ -195,7 +195,7 @@ class _UserMenuScreenState extends State<UserMenuScreen>
                                   color: Colors.white70, fontSize: 13),
                             ),
                             const Text(
-                              'Matchacih',
+                              'Gotcha',
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,

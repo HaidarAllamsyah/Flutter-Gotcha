@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
@@ -17,6 +22,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool _isEditingName = false;
   final _nameController = TextEditingController();
   bool _isSaving = false;
+  bool _isUploadingPhoto = false;
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void dispose() {
@@ -28,12 +35,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final newName = _nameController.text.trim();
     if (newName.isEmpty) return;
 
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.currentUser;
+    if (user == null) return;
+
     setState(() => _isSaving = true);
 
     try {
-      final user = context.read<AuthProvider>().currentUser!;
       await FirestoreService().updateUserName(user.userId, newName);
-      await context.read<AuthProvider>().loadCurrentUser();
+      await authProvider.loadCurrentUser();
 
       if (context.mounted) {
         setState(() {
@@ -58,17 +68,62 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  Future<void> _changeProfilePhoto(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.currentUser;
+    if (user == null || _isUploadingPhoto) return;
+
+    try {
+      final pickedImage = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 75,
+        maxWidth: 600,
+      );
+      if (pickedImage == null) return;
+      if (!mounted) return;
+
+      setState(() => _isUploadingPhoto = true);
+
+      final bytes = await pickedImage.readAsBytes();
+      if (!mounted) return;
+
+      final imageBase64 = base64Encode(bytes);
+
+      await FirestoreService().updateUserProfileImage(
+        user.userId,
+        imageBase64,
+      );
+      await authProvider.loadCurrentUser();
+
+      if (context.mounted) {
+        setState(() => _isUploadingPhoto = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Foto profil berhasil diperbarui!'),
+          backgroundColor: Color(0xFF6B7D1F),
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        setState(() => _isUploadingPhoto = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Gagal memperbarui foto: $e'),
+          backgroundColor: const Color(0xFFE63946),
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().currentUser;
     final orders = context.watch<OrderProvider>().orders;
 
     final totalOrders = orders.length;
-    final completedOrders =
-        orders.where((o) => o.status == 'completed').length;
+    final completedOrders = orders.where((o) => o.status == 'completed').length;
     final pendingOrders = orders
-        .where((o) =>
-            o.status == 'pending' || o.status == 'processing')
+        .where((o) => o.status == 'pending' || o.status == 'processing')
         .length;
     final totalSpent = orders
         .where((o) => o.status == 'completed')
@@ -99,34 +154,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     children: [
                       const SizedBox(height: 16),
                       // Avatar
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: Colors.white.withOpacity(0.5),
-                              width: 2),
-                        ),
-                        child: Center(
-                          child: Text(
-                            user?.name.isNotEmpty == true
-                                ? user!.name[0].toUpperCase()
-                                : '?',
-                            style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white),
-                          ),
-                        ),
-                      ),
+                      _profileAvatar(context, user),
                       const SizedBox(height: 10),
                       // Nama (bisa diedit)
                       _isEditingName
                           ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 60),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 60),
                               child: Row(children: [
                                 Expanded(
                                   child: TextField(
@@ -139,17 +173,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         color: Colors.white),
                                     decoration: const InputDecoration(
                                       border: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.white54),
+                                        borderSide:
+                                            BorderSide(color: Colors.white54),
                                       ),
                                       enabledBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.white54),
+                                        borderSide:
+                                            BorderSide(color: Colors.white54),
                                       ),
                                       focusedBorder: UnderlineInputBorder(
                                         borderSide: BorderSide(
-                                            color: Colors.white,
-                                            width: 2),
+                                            color: Colors.white, width: 2),
                                       ),
                                     ),
                                   ),
@@ -163,29 +196,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                             color: Colors.white,
                                             strokeWidth: 2))
                                     : GestureDetector(
-                                        onTap: () =>
-                                            _saveName(context),
+                                        onTap: () => _saveName(context),
                                         child: Container(
                                           padding: const EdgeInsets.all(6),
                                           decoration: BoxDecoration(
-                                            color:
-                                                Colors.white.withOpacity(0.2),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.2),
                                             shape: BoxShape.circle,
                                           ),
-                                          child: const Icon(
-                                              Icons.check_rounded,
-                                              color: Colors.white,
-                                              size: 18),
+                                          child: const Icon(Icons.check_rounded,
+                                              color: Colors.white, size: 18),
                                         ),
                                       ),
                                 const SizedBox(width: 4),
                                 GestureDetector(
-                                  onTap: () => setState(
-                                      () => _isEditingName = false),
+                                  onTap: () =>
+                                      setState(() => _isEditingName = false),
                                   child: Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(Icons.close_rounded,
@@ -196,13 +227,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             )
                           : GestureDetector(
                               onTap: () {
-                                _nameController.text =
-                                    user?.name ?? '';
+                                _nameController.text = user?.name ?? '';
                                 setState(() => _isEditingName = true);
                               },
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     user?.name ?? 'Pelanggan',
@@ -215,14 +244,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius:
-                                          BorderRadius.circular(6),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Icon(
-                                        Icons.edit_rounded,
-                                        color: Colors.white70,
-                                        size: 14),
+                                    child: const Icon(Icons.edit_rounded,
+                                        color: Colors.white70, size: 14),
                                   ),
                                 ],
                               ),
@@ -252,17 +279,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 12,
                             offset: const Offset(0, 2))
                       ],
                     ),
                     child: Row(children: [
-                      _statItem('Total Order', '$totalOrders', Icons.shopping_bag_outlined),
+                      _statItem('Total Order', '$totalOrders',
+                          Icons.shopping_bag_outlined),
                       _divider(),
-                      _statItem('Selesai', '$completedOrders', Icons.check_circle_outline_rounded),
+                      _statItem('Selesai', '$completedOrders',
+                          Icons.check_circle_outline_rounded),
                       _divider(),
-                      _statItem('Aktif', '$pendingOrders', Icons.history_rounded),
+                      _statItem(
+                          'Aktif', '$pendingOrders', Icons.history_rounded),
                     ]),
                   ),
                   const SizedBox(height: 12),
@@ -327,7 +357,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   _infoTile(
                     icon: Icons.verified_user_rounded,
                     label: 'Role',
-                    value: 'Pelanggan Matchacih',
+                    value: 'Pelanggan Gotcha',
                     color: const Color(0xFFA9B388),
                   ),
 
@@ -338,15 +368,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () async {
+                        final authProvider = context.read<AuthProvider>();
+                        final cartProvider = context.read<CartProvider>();
                         final confirm = await showDialog<bool>(
                           context: context,
                           builder: (_) => AlertDialog(
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(20)),
+                                borderRadius: BorderRadius.circular(20)),
                             title: const Text('Keluar?'),
-                            content: const Text(
-                                'Yakin ingin keluar dari akun ini?'),
+                            content:
+                                const Text('Yakin ingin keluar dari akun ini?'),
                             actions: [
                               TextButton(
                                   onPressed: () =>
@@ -354,22 +385,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   child: const Text('Batal')),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color(0xFFE63946),
+                                    backgroundColor: const Color(0xFFE63946),
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10))),
-                                onPressed: () =>
-                                    Navigator.pop(context, true),
+                                onPressed: () => Navigator.pop(context, true),
                                 child: const Text('Keluar'),
                               ),
                             ],
                           ),
                         );
                         if (confirm == true && context.mounted) {
-                          await context.read<AuthProvider>().logout();
-                          context.read<CartProvider>().reset();
+                          await authProvider.logout();
+                          cartProvider.reset();
+                          if (!context.mounted) return;
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -378,10 +408,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFE63946),
-                        side: const BorderSide(
-                            color: Color(0xFFE63946)),
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Color(0xFFE63946)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                       ),
@@ -411,15 +439,89 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF1B1B1B))),
         Text(label,
-            style: const TextStyle(
-                fontSize: 11, color: Color(0xFF9E9E9E))),
+            style: const TextStyle(fontSize: 11, color: Color(0xFF9E9E9E))),
       ]),
     );
   }
 
   Widget _divider() {
-    return Container(
-        width: 1, height: 50, color: const Color(0xFFE8EDE9));
+    return Container(width: 1, height: 50, color: const Color(0xFFE8EDE9));
+  }
+
+  Widget _profileAvatar(BuildContext context, UserModel? user) {
+    Uint8List? imageBytes;
+    final imageBase64 = (user?.profileImageBase64 ?? '').trim();
+    if (imageBase64.isNotEmpty && imageBase64 != 'null') {
+      try {
+        imageBytes = base64Decode(imageBase64);
+      } catch (_) {
+        imageBytes = null;
+      }
+    }
+
+    return GestureDetector(
+      onTap: () => _changeProfilePhoto(context),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.5), width: 2),
+              image: imageBytes == null
+                  ? null
+                  : DecorationImage(
+                      image: MemoryImage(imageBytes),
+                      fit: BoxFit.cover,
+                    ),
+            ),
+            child: imageBytes != null
+                ? null
+                : Center(
+                    child: Text(
+                      user?.name.isNotEmpty == true
+                          ? user!.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white),
+                    ),
+                  ),
+          ),
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF6B7D1F), width: 2),
+              ),
+              child: _isUploadingPhoto
+                  ? const Padding(
+                      padding: EdgeInsets.all(6),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Color(0xFF6B7D1F),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.camera_alt_rounded,
+                      size: 15,
+                      color: Color(0xFF6B7D1F),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _infoTile({
@@ -440,7 +542,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 2))
           ],
@@ -450,7 +552,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),

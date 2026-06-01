@@ -11,6 +11,19 @@ import 'services/firestore_service.dart';
 import 'services/notification_service.dart';
 import 'theme/app_theme.dart';
 
+class NoStretchScrollBehavior extends MaterialScrollBehavior {
+  const NoStretchScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -35,9 +48,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: MaterialApp(
-        title: 'Matchacih',
+        title: 'Gotcha',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
+        scrollBehavior: const NoStretchScrollBehavior(),
+        builder: (context, child) {
+          final mediaQuery = MediaQuery.of(context);
+          return MediaQuery(
+            data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
         // navigatorKey untuk notifikasi in-app
         navigatorKey: NotificationService.navigatorKey,
         home: const SplashScreen(),
