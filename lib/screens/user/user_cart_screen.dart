@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/menu_provider.dart';
+import '../../models/menu_model.dart';
+import '../../widgets/menu_image.dart';
 import 'user_checkout_screen.dart';
 import '../../utils/app_router.dart';
 
@@ -20,6 +23,7 @@ class UserCartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
+    final menuProvider = context.watch<MenuProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9F4),
@@ -113,6 +117,17 @@ class UserCartScreen extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate(
                       (_, i) {
                         final item = cart.items[i];
+                        final menu = menuProvider.menus.firstWhere(
+                          (m) => m.menuId == item.menuId,
+                          orElse: () => MenuModel(
+                            menuId: '',
+                            name: item.name,
+                            price: item.basePrice,
+                            category: 'food',
+                            stock: 0,
+                            description: '',
+                          ),
+                        );
                         return TweenAnimationBuilder<double>(
                           tween: Tween(begin: 0, end: 1),
                           duration:
@@ -140,25 +155,21 @@ class UserCartScreen extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                // Emoji
+                                // Image
                                 Container(
                                   width: 56,
                                   height: 56,
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFF3F1E7),
-                                        Color(0xFFA9B388)
-                                      ],
-                                    ),
-                                    borderRadius:
-                                        BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: const Color(0xFFF3F1E7),
                                   ),
-                                  child: Center(
-                                    child: Icon(
-                                        _categoryIcon(item.name),
-                                        size: 26,
-                                        color: const Color(0xFF6B7D1F)),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: MenuImage(
+                                    imageBase64: menu.imageBase64,
+                                    imageUrl: menu.imageUrl,
+                                    imagePath: menu.imagePath,
+                                    category: menu.category,
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
